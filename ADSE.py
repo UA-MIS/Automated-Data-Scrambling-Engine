@@ -5,8 +5,9 @@ from tkinter import messagebox
 from tkinter import filedialog
 import pandas as pd
 import numpy as np
+from faker import Faker
 
-
+fake = Faker()
 
 def addFile(): #Function to open the filedialog and prompt the user to choose a file to upload into the application
         filename = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
@@ -111,7 +112,8 @@ def generateData(data, objectChoice, targetColumn): #Function that reads busines
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     #Generate Street Address Function
-    return NONE
+        for i in range(len(data.index)):
+            print(fake.street_address())
 
 def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
     #Generate Email Address Function
@@ -123,7 +125,11 @@ def generatePhoneNumber(data, targetColumn):             #Function that generate
 
 def generateNationalIdentifier(data, targetColumn):      #Function that generates national identifiers
     #Generate National Identifier Function
-    return NONE
+    data[targetColumn] = data[targetColumn].apply(generate_ssn)
+    print(data)
+
+def generate_ssn():
+    return fake.ssn
 
 def main():                                         #Everything within this "main()" Function is the actual application
     root = Tk()                                     #initializes the window and names it "root"
