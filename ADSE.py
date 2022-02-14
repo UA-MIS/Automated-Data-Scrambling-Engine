@@ -124,7 +124,13 @@ def generateData(data, objectChoice, targetColumn): #Function that reads busines
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     #Generate Street Address Function
-    return NONE
+        # for i in range(len(data.index)):
+        #     print(fake.street_address())
+        data[targetColumn] = data[targetColumn].apply(generate_streetaddress)
+        print(data)
+
+def generate_streetaddress():
+        return fake.street_address
 
 def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
     #Generate Email Address Function
