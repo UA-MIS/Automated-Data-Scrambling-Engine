@@ -126,11 +126,13 @@ def generateStreetAddress(data, targetColumn):           #Function that generate
     #Generate Street Address Function
         # for i in range(len(data.index)):
         #     print(fake.street_address())
-        data[targetColumn] = data[targetColumn].apply(generate_streetaddress)
-        print(data)
+        for i in data.index:
+            data.at[i, targetColumn] = generate_streetaddress()
+        # data[targetColumn] = data[targetColumn].apply(generate_streetaddress())
+        # print(data)
 
 def generate_streetaddress():
-        return fake.street_address
+        return fake.street_address()
 
 def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
     #Generate Email Address Function
