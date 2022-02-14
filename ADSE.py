@@ -5,12 +5,16 @@ from tkinter import messagebox
 from tkinter import filedialog
 import pandas as pd
 import numpy as np
+import faker as faker
+
+fake = faker.Faker()
 
 
 
 def addFile(): #Function to open the filedialog and prompt the user to choose a file to upload into the application
         filename = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
         data = pd.read_csv(filename, header=0)
+        print(filename)
         fileNameLabel["text"] = filename
         readColumns(data)
 
@@ -29,6 +33,12 @@ def displayData(columns, data): #Function that displays csv data in the preview
     for row in df_rows:
         tv1.insert("", "end", values=row)
     displayDropdown(columns, data)
+
+def updateData(data): #Function that updates data in the preview
+    clear_data()
+    df_rows = data.to_numpy().tolist()
+    for row in df_rows:
+        tv1.insert("", "end", values=row)
 
 def clear_data(): #Function that clears the preview so that it can be repopulated
     tv1.delete(*tv1.get_children())
@@ -94,20 +104,23 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
     print(configDict)
-    for i in configDict:
-        if configDict[i] == 1:
-            targetColumn = configDict[i]
+    targetColumn = [k for k, v in configDict.items() if v == 1]
+    print(targetColumn)
     generateData(data, objectChoice, targetColumn)
 
 def generateData(data, objectChoice, targetColumn): #Function that reads business object choice and directs data to corresponding generate function
     if objectChoice.get() == "Street Address":
         generateStreetAddress(data, targetColumn)
+        updateData(data)
     elif objectChoice.get() == "Email Address":
         generateEmailAddress(data, targetColumn)
+        updateData(data)
     elif objectChoice.get() == "Phone Number":
         generatePhoneNumber(data, targetColumn)
+        updateData(data)
     else:
         generateNationalIdentifier(data, targetColumn)
+        updateData(data)
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     #Generate Street Address Function
@@ -119,11 +132,19 @@ def generateEmailAddress(data, targetColumn):            #Function that generate
 
 def generatePhoneNumber(data, targetColumn):             #Function that generates phone numbers
     #Generate Phone Number Function
-    return NONE
+    for i in data.index:
+        data.at[i, targetColumn] = generate_Phone()
+
 
 def generateNationalIdentifier(data, targetColumn):      #Function that generates national identifiers
-    #Generate National Identifier Function
-    return NONE
+    for i in data.index:
+        data.at[i, targetColumn] = generate_SSN()
+
+def generate_SSN(): #Actual method that generates SSN's
+    return fake.ssn()
+
+def generate_Phone(): #Actual method that generates phone numbers
+    return fake.numerify("(###)-###-####")
 
 def main():                                         #Everything within this "main()" Function is the actual application
     root = Tk()                                     #initializes the window and names it "root"
