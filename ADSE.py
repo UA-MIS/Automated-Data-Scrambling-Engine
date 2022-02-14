@@ -6,6 +6,7 @@ from tkinter import filedialog
 import pandas as pd
 import numpy as np
 from faker import Faker
+import csv
 
 fake = Faker()
 
@@ -112,8 +113,13 @@ def generateData(data, objectChoice, targetColumn): #Function that reads busines
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     #Generate Street Address Function
-        for i in range(len(data.index)):
-            print(fake.street_address())
+        # for i in range(len(data.index)):
+        #     print(fake.street_address())
+        data[targetColumn] = data[targetColumn].apply(generate_streetaddress)
+        print(data)
+
+def generate_streetaddress():
+    return fake.street_address
 
 def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
     #Generate Email Address Function
