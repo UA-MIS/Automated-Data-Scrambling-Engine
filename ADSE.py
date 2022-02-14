@@ -16,7 +16,12 @@ def addFile(): #Function to open the filedialog and prompt the user to choose a 
         data = pd.read_csv(filename, header=0)
         print(filename)
         fileNameLabel["text"] = filename
+        clearFrame()
         readColumns(data)
+
+def clearFrame():
+    for widget in middleWrapper.winfo_children():
+        widget.destroy()
 
 def readColumns(data): #Function to read columns from csv and create a list of those columns
     columns = list
@@ -60,27 +65,45 @@ def displayDropdown(columns, data): #Function that displays the dropdown to choo
 def searchColumns(columns, data, objectChoice): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
     print(columns)
     if objectChoice.get() == "Street Address":
-        possibleColumns = [col for col in columns if 'Street' in col or "street" in col]
-        selectColumns(possibleColumns, data, objectChoice)
+        possibleColumns = [col for col in columns if 'Street' in col]
+        print(possibleColumns)
+        if bool(possibleColumns) == True:
+            selectColumns(possibleColumns, data, objectChoice, columns)
+        else:
+            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel.pack()
     elif objectChoice.get() == "Email Address":
         possibleColumns = [col for col in columns if 'Email' in col]
-        selectColumns(possibleColumns, data, objectChoice)
+        if bool(possibleColumns) == True:
+            selectColumns(possibleColumns, data, objectChoice, columns)
+        else:
+            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel.pack()
     elif objectChoice.get() == "Phone Number":
         possibleColumns = [col for col in columns if 'Phone' in col]
-        selectColumns(possibleColumns, data, objectChoice)
+        if bool(possibleColumns) == True:
+            selectColumns(possibleColumns, data, objectChoice, columns)
+        else:
+            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel.pack()
     elif objectChoice.get() == "National Identifier":
         possibleColumns = [col for col in columns if 'SSN' in col]
-        selectColumns(possibleColumns, data, objectChoice)
+        if bool(possibleColumns) == True:
+            selectColumns(possibleColumns, data, objectChoice, columns)
+        else:
+            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel.pack()
     else:
         global message
         message = Label(middleWrapper, text = "You must select a Business Object Type", fg = "red")
         message.pack()
 
-def selectColumns(possibleColumns, data, objectChoice): #Function that creates radio buttons and allows user to select the column they want to affect
+def selectColumns(possibleColumns, data, objectChoice, columns): #Function that creates radio buttons and allows user to select the column they want to affect
     columnV = {}
     columnWidgetYes = {}
     columnWidgetNo = {}
     columnNames = {}
+    clearFrame()
 
     for i in possibleColumns:
         v = tk.IntVar()
@@ -96,31 +119,40 @@ def selectColumns(possibleColumns, data, objectChoice): #Function that creates r
         columnWidgetNo[i] = columnRadioNo
         columnNames[i] = columnName
     global confirmColumnBTN
-    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm these are the columns you want to change", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns))
+    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
     confirmColumnBTN.pack(expand = "true")
 
-def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns): #Function that creates config log and selects target column
+def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns): #Function that creates config log and selects target column
     configDict = {}
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
+        columnWidgetYes[i].destroy()
+        columnWidgetNo[i].destroy()
+        columnNames[i].destroy()
+        confirmColumnBTN.destroy()
     print(configDict)
-    targetColumn = [k for k, v in configDict.items() if v == 1]
-    print(targetColumn)
-    generateData(data, objectChoice, targetColumn)
+    tColumn = [k for k, v in configDict.items() if v == 1]
+    targetColumn = StringVar()
+    targetColumn = tColumn[0]
+    generateData(data, objectChoice, targetColumn, columns)
 
-def generateData(data, objectChoice, targetColumn): #Function that reads business object choice and directs data to corresponding generate function
+def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
+    dataUpdated = tk.Label(topWrapper, text = "Data has been updated. If you are satisfied, you can export the data using the 'Export Data' button at the bottom.")
+    dataUpdated.pack()
+    exportBTN = tk.Button(bottomWrapper, text = "Export Data", command=lambda: exportData(data))
+    exportBTN.pack()
     if objectChoice.get() == "Street Address":
         generateStreetAddress(data, targetColumn)
-        updateData(data)
+        displayData(columns, data)
     elif objectChoice.get() == "Email Address":
         generateEmailAddress(data, targetColumn)
-        updateData(data)
+        displayData(columns, data)
     elif objectChoice.get() == "Phone Number":
         generatePhoneNumber(data, targetColumn)
-        updateData(data)
+        displayData(columns, data)
     else:
         generateNationalIdentifier(data, targetColumn)
-        updateData(data)
+        displayData(columns, data)
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     #Generate Street Address Function
@@ -136,7 +168,7 @@ def generate_streetaddress():
 
 def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
     #Generate Email Address Function
-    return NONE
+    data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "TEST@email.com")
 
 def generatePhoneNumber(data, targetColumn):             #Function that generates phone numbers
     #Generate Phone Number Function
@@ -153,6 +185,12 @@ def generate_SSN(): #Actual method that generates SSN's
 
 def generate_Phone(): #Actual method that generates phone numbers
     return fake.numerify("(###)-###-####")
+
+def exportData(data):
+    savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
+    data.to_csv(savePath, sep = "|")
+    exportLabel = tk.Label(bottomWrapper, text = "File successfully exported!")
+    exportLabel.pack()
 
 def main():                                         #Everything within this "main()" Function is the actual application
     root = Tk()                                     #initializes the window and names it "root"
