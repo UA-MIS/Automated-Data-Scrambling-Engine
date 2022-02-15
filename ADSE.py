@@ -16,7 +16,6 @@ def addFile(): #Function to open the filedialog and prompt the user to choose a 
         data = pd.read_csv(filename, header=0)
         print(filename)
         fileNameLabel["text"] = filename
-        clearFrame()
         readColumns(data)
 
 def clearFrame():
@@ -26,6 +25,7 @@ def clearFrame():
 def readColumns(data): #Function to read columns from csv and create a list of those columns
     columns = list
     columns = data.columns.values
+    clearFrame()
     displayData(columns, data)
 
 def displayData(columns, data): #Function that displays csv data in the preview
@@ -137,10 +137,13 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
     generateData(data, objectChoice, targetColumn, columns)
 
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
-    dataUpdated = tk.Label(topWrapper, text = "Data has been updated. If you are satisfied, you can export the data using the 'Export Data' button at the bottom.")
-    dataUpdated.pack()
-    exportBTN = tk.Button(bottomWrapper, text = "Export Data", command=lambda: exportData(data))
+    topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
+    global exportBTN
+    global reorderBTN
+    exportBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+    reorderBTN = tk.Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
+    reorderBTN.pack()
     if objectChoice.get() == "Street Address":
         generateStreetAddress(data, targetColumn)
         displayData(columns, data)
@@ -189,8 +192,31 @@ def generate_Phone(): #Actual method that generates phone numbers
 def exportData(data):
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
     data.to_csv(savePath, sep = "|")
-    exportLabel = tk.Label(bottomWrapper, text = "File successfully exported!")
-    exportLabel.pack()
+    if bool(savePath) == True:
+        topLabel["text"] = "File succesfully exported."
+    else:
+        topLabel["text"] = "File failed to export."
+    
+
+def reorderColumns(data, targetColumn):
+    if targetColumn == "PhoneNumber":
+        correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber", "PhoneType"]
+        data = data[correctOrder]
+        topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
+        readColumns(data)
+        exportBTN.destroy()
+        reorderBTN.destroy()
+        exporttBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+        exporttBTN.pack()
+    else:
+        correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber"]
+        data = data[correctOrder]
+        topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
+        readColumns(data)
+        exportBTN.destroy()
+        reorderBTN.destroy()
+        exporttBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+        exporttBTN.pack()
 
 def main():                                         #Everything within this "main()" Function is the actual application
     root = Tk()                                     #initializes the window and names it "root"
@@ -200,12 +226,14 @@ def main():                                         #Everything within this "mai
     global bottomWrapper                            #Makes the bottomWrapper a global variable so that it can be accessed in any Function
     global fileNameLabel                            #Makes the fileNameLabel a global variable so that it can be accessed in any Function
     global tv1                                      #Makes the treeview a global variable so that it can be accessed in any Function
+    global topLabel
 
     titleText = Label(root, text="Welcome to the Automated Data Scrambling Engine!") #Creates text that appears at top of application
     topWrapper = LabelFrame(root, text="Preview")                                    #Creates preview Section
     middleWrapper = LabelFrame(root, text="Configuration")                           #Creates configure Section
     bottomWrapper = LabelFrame(root, text="Current File")                            #Creates select File section
     fileNameLabel = Label(bottomWrapper, text="No file selected")                    #Creates text for selected file name
+    topLabel = Label(topWrapper, text="View preview of data here:")                  #Creates text for top label
     tv1 = ttk.Treeview(topWrapper)                                                   #Creates treeview for previewing data
     openFileBTN = tk.Button(bottomWrapper, text="Choose a File for Scrambling",      #Creates Open File Button
     padx=10, pady=5, fg="white", bg="dark blue", command=addFile)
@@ -220,6 +248,7 @@ def main():                                         #Everything within this "mai
     middleWrapper.pack(fill="both", expand="yes", padx=20, pady=20)  #Places middleWrapper label frame in window
     bottomWrapper.pack(fill="both", expand="yes", padx=20, pady=20)  #Places bottomWrapper label frame in window
     fileNameLabel.pack()                                             #Places fileName Label in bottomWrapper frame
+    topLabel.pack()                                                  #Places top label in top wrapper frame          
     tv1.pack(fill="both", expand="yes", padx=20, pady=20)            #Places treeview in topWrapper frame
     treescrollx.pack(side="bottom", fill="x")                        #Makes the scrollbar fill the x axis of the Treeview widget
     treescrolly.pack(side="right", fill="y")                         #Makes the scrollbar fill the y axis of the Treeview widget
