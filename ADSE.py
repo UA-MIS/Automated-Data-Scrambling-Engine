@@ -158,13 +158,9 @@ def generateData(data, objectChoice, targetColumn, columns): #Function that read
         displayData(columns, data)
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
-    #Generate Street Address Function
-        # for i in range(len(data.index)):
-        #     print(fake.street_address())
-        for i in data.index:
-            data.at[i, targetColumn] = generate_streetaddress()
-        # data[targetColumn] = data[targetColumn].apply(generate_streetaddress())
-        # print(data)
+    for i in data.index:
+        data.at[i, targetColumn] = generate_streetaddress()
+        
 
 def generate_streetaddress():
         return fake.street_address()
@@ -191,7 +187,7 @@ def generate_Phone(): #Actual method that generates phone numbers
 
 def exportData(data):
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
-    data.to_csv(savePath, sep = "|")
+    data.to_csv(savePath, sep = "|", index = False)
     if bool(savePath) == True:
         topLabel["text"] = "File succesfully exported."
     else:
