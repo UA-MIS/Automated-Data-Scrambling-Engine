@@ -75,7 +75,7 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
     elif objectChoice.get() == "Email Address":
         possibleColumns = [col for col in columns if 'Email' in col]
         if bool(possibleColumns) == True:
-            selectColumns(possibleColumns, data, objectChoice, columns)
+            selectDomain(possibleColumns, data, objectChoice, columns)
         else:
             columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
@@ -97,6 +97,16 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
         global message
         message = Label(middleWrapper, text = "You must select a Business Object Type", fg = "red")
         message.pack()
+
+def selectDomain(possibleColumns, data, objectChoice, columns):
+    clearFrame()
+    domainChoice = StringVar()
+    entryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
+    domainEntry = Entry(middleWrapper, textvariable = domainChoice)
+    confirmDomainBTN = tk.Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice))
+    entryLabel.pack()
+    domainEntry.pack()
+    confirmDomainBTN.pack()
 
 def selectColumns(possibleColumns, data, objectChoice, columns): #Function that creates radio buttons and allows user to select the column they want to affect
     columnV = {}
@@ -122,6 +132,30 @@ def selectColumns(possibleColumns, data, objectChoice, columns): #Function that 
     confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
     confirmColumnBTN.pack(expand = "true")
 
+def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice): #Function that creates radio buttons and allows user to select the column they want to affect
+    columnV = {}
+    columnWidgetYes = {}
+    columnWidgetNo = {}
+    columnNames = {}
+    clearFrame()
+
+    for i in possibleColumns:
+        v = tk.IntVar()
+        v.set(0)
+        columnName = tk.Label(middleWrapper, text="Column Name: "+ i)
+        columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+        columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+        columnName.pack()
+        columnRadioYes.pack()
+        columnRadioNo.pack()
+        columnV[i] = v
+        columnWidgetYes[i] = columnRadioYes
+        columnWidgetNo[i] = columnRadioNo
+        columnNames[i] = columnName
+    global confirmColumnBTN
+    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice))
+    confirmColumnBTN.pack(expand = "true")
+
 def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns): #Function that creates config log and selects target column
     configDict = {}
     for i in possibleColumns:
@@ -135,6 +169,20 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
     targetColumn = StringVar()
     targetColumn = tColumn[0]
     generateData(data, objectChoice, targetColumn, columns)
+
+def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice): #Function that creates config log and selects target column
+    configDict = {}
+    for i in possibleColumns:
+        configDict[i] = columnV[i].get()
+        columnWidgetYes[i].destroy()
+        columnWidgetNo[i].destroy()
+        columnNames[i].destroy()
+        confirmColumnBTN.destroy()
+    print(configDict)
+    tColumn = [k for k, v in configDict.items() if v == 1]
+    targetColumn = StringVar()
+    targetColumn = tColumn[0]
+    generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
 
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
@@ -157,6 +205,19 @@ def generateData(data, objectChoice, targetColumn, columns): #Function that read
         generateNationalIdentifier(data, targetColumn)
         displayData(columns, data)
 
+def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): #Function that reads business object choice and directs data to corresponding generate function
+    topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
+    global exportBTN
+    global reorderBTN
+    exportBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+    reorderBTN = tk.Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
+    exportBTN.pack()
+    reorderBTN.pack()
+    
+    generateEmailAddress(data, targetColumn, domainChoice)
+    displayData(columns, data)
+    
+
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     for i in data.index:
         data.at[i, targetColumn] = generate_streetaddress()
@@ -165,9 +226,10 @@ def generateStreetAddress(data, targetColumn):           #Function that generate
 def generate_streetaddress():
         return fake.street_address()
 
-def generateEmailAddress(data, targetColumn):            #Function that generates email addresses
+def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
     #Generate Email Address Function
-    data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "TEST@email.com")
+    domain = domainChoice.get()
+    data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "@" + domain)
 
 def generatePhoneNumber(data, targetColumn):             #Function that generates phone numbers
     #Generate Phone Number Function
