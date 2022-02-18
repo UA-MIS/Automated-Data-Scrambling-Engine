@@ -320,9 +320,11 @@ def generateStreetAddress(data, objectChoice, targetColumn, columns,
         data.at[i, targetColumn] = generate_streetaddress()
 
 def generate_streetaddress(data, objectChoice, targetColumn, columns,
-                          streetChoice):
+                          streetChoice, frequencyChoice):
     for i in data.index:
         print(i + streetChoice)
+        if i % frequencyChoice == 0:
+            print("Unit "+i)
 
 def generateEmailAddress(data, targetColumn, domainChoice):  # Function that generates email addresses
     # Generate Email Address Function
