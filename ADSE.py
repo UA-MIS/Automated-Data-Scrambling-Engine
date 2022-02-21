@@ -6,26 +6,57 @@ from tkinter import filedialog
 import pandas as pd
 import numpy as np
 import faker as faker
+import random
 
 fake = faker.Faker()
 
+def fileType(fileTypeChoice):
+    fileType = fileTypeChoice.get()
+    if fileType == ".CSV":
+        addCSVFile()
+    elif fileType == ".DAT":
+        delimChoice = StringVar()
+        delimEntryLabel = Label(bottomWrapper, text = "Please enter the delimiter your file uses:")
+        delimEntry = Entry(bottomWrapper, textvariable = delimChoice)
+        delimConfirmBTN = Button(bottomWrapper, text="Confirm Delimiter", command = lambda: addDATFile(delimChoice))
+        delimEntryLabel.pack()
+        delimEntry.pack()
+        delimConfirmBTN.pack()
+
+def addDATFile(delimChoice):
+    fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("all files", "*.*")))
+    print(delimChoice.get())
+    data = pd.read_csv(fileName, header=0, sep=delimChoice.get())
+    print(fileName)
+    fileNameLabel["text"] = fileName
+    clearBottomFrame()
+    readColumns(data)
 
 
-def addFile(): #Function to open the filedialog and prompt the user to choose a file to upload into the application
-        filename = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
-        data = pd.read_csv(filename, header=0)
-        print(filename)
-        fileNameLabel["text"] = filename
-        readColumns(data)
+def addCSVFile(): #Function to open the filedialog and prompt the user to choose a file to upload into the application
+    fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
+    data = pd.read_csv(fileName, header=0)
+    print(fileName)
+    fileNameLabel["text"] = fileName
+    clearBottomFrame()
+    readColumns(data)
 
-def clearFrame():
+def clearTopFrame():
+    for widget in topWrapper.winfo_children():
+        widget.destroy()
+
+def clearMiddleFrame():
     for widget in middleWrapper.winfo_children():
+        widget.destroy()
+
+def clearBottomFrame():
+    for widget in bottomWrapper.winfo_children():
         widget.destroy()
 
 def readColumns(data): #Function to read columns from csv and create a list of those columns
     columns = list
     columns = data.columns.values
-    clearFrame()
+    clearMiddleFrame()
     displayData(columns, data)
 
 def displayData(columns, data): #Function that displays csv data in the preview
@@ -50,16 +81,16 @@ def clear_data(): #Function that clears the preview so that it can be repopulate
 
 def displayDropdown(columns, data): #Function that displays the dropdown to choose the business object
     BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
-    objectChoice = tk.StringVar()
+    objectChoice = StringVar()
     objectChoice.set("--Business Object--")
     global dropdownLabel
     global objectDropdown
-    dropdownLabel = tk.Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
-    objectDropdown = tk.OptionMenu(middleWrapper, objectChoice, *BUSINESSOBJECTS)
+    dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+    objectDropdown = OptionMenu(middleWrapper, objectChoice, *BUSINESSOBJECTS)
     dropdownLabel.pack()
     objectDropdown.pack()
     global confirmObjectBTN
-    confirmObjectBTN = tk.Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, objectChoice))
+    confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, objectChoice))
     confirmObjectBTN.pack(expand = "true")
 
 def searchColumns(columns, data, objectChoice): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
@@ -70,28 +101,28 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
         if bool(possibleColumns) == True:
             selectColumns(possibleColumns, data, objectChoice, columns)
         else:
-            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
     elif objectChoice.get() == "Email Address":
         possibleColumns = [col for col in columns if 'Email' in col]
         if bool(possibleColumns) == True:
             selectDomain(possibleColumns, data, objectChoice, columns)
         else:
-            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
     elif objectChoice.get() == "Phone Number":
         possibleColumns = [col for col in columns if 'Phone' in col]
         if bool(possibleColumns) == True:
             selectColumns(possibleColumns, data, objectChoice, columns)
         else:
-            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
     elif objectChoice.get() == "National Identifier":
         possibleColumns = [col for col in columns if 'SSN' in col]
         if bool(possibleColumns) == True:
             selectColumns(possibleColumns, data, objectChoice, columns)
         else:
-            columnNotFoundLabel = tk.Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
+            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
     else:
         global message
@@ -99,12 +130,12 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
         message.pack()
 
 def selectDomain(possibleColumns, data, objectChoice, columns):
-    clearFrame()
+    clearMiddleFrame()
     domainChoice = StringVar()
-    entryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
+    domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
     domainEntry = Entry(middleWrapper, textvariable = domainChoice)
-    confirmDomainBTN = tk.Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice))
-    entryLabel.pack()
+    confirmDomainBTN = Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice))
+    domainEntryLabel.pack()
     domainEntry.pack()
     confirmDomainBTN.pack()
 
@@ -113,14 +144,14 @@ def selectColumns(possibleColumns, data, objectChoice, columns): #Function that 
     columnWidgetYes = {}
     columnWidgetNo = {}
     columnNames = {}
-    clearFrame()
+    clearMiddleFrame()
 
     for i in possibleColumns:
-        v = tk.IntVar()
+        v = IntVar()
         v.set(0)
-        columnName = tk.Label(middleWrapper, text="Column Name: "+ i)
-        columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
-        columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+        columnName = Label(middleWrapper, text="Column Name: "+ i)
+        columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+        columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
         columnName.pack()
         columnRadioYes.pack()
         columnRadioNo.pack()
@@ -129,7 +160,7 @@ def selectColumns(possibleColumns, data, objectChoice, columns): #Function that 
         columnWidgetNo[i] = columnRadioNo
         columnNames[i] = columnName
     global confirmColumnBTN
-    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
+    confirmColumnBTN = Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
     confirmColumnBTN.pack(expand = "true")
 
 def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice): #Function that creates radio buttons and allows user to select the column they want to affect
@@ -137,14 +168,14 @@ def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoic
     columnWidgetYes = {}
     columnWidgetNo = {}
     columnNames = {}
-    clearFrame()
+    clearMiddleFrame()
 
     for i in possibleColumns:
-        v = tk.IntVar()
+        v = IntVar()
         v.set(0)
-        columnName = tk.Label(middleWrapper, text="Column Name: "+ i)
-        columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
-        columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+        columnName = Label(middleWrapper, text="Column Name: "+ i)
+        columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+        columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
         columnName.pack()
         columnRadioYes.pack()
         columnRadioNo.pack()
@@ -153,8 +184,9 @@ def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoic
         columnWidgetNo[i] = columnRadioNo
         columnNames[i] = columnName
     global confirmColumnBTN
-    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice))
+    confirmColumnBTN = Button(middleWrapper, text="Confirm Configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice))
     confirmColumnBTN.pack(expand = "true")
+
 
 def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns): #Function that creates config log and selects target column
     configDict = {}
@@ -184,12 +216,13 @@ def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWid
     targetColumn = tColumn[0]
     generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
 
+
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
     global reorderBTN
-    exportBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-    reorderBTN = tk.Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
+    exportBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+    reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
     reorderBTN.pack()
     if objectChoice.get() == "Street Address":
@@ -209,33 +242,38 @@ def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): 
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
     global reorderBTN
-    exportBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-    reorderBTN = tk.Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
+    exportBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+    reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
     reorderBTN.pack()
-    
+   
     generateEmailAddress(data, targetColumn, domainChoice)
     displayData(columns, data)
-    
+   
 
 def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
     for i in data.index:
         data.at[i, targetColumn] = generate_streetaddress()
-        
+       
 
 def generate_streetaddress():
         return fake.street_address()
 
 def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
-    #Generate Email Address Function
     domain = domainChoice.get()
     data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "@" + domain)
 
 def generatePhoneNumber(data, targetColumn):             #Function that generates phone numbers
-    #Generate Phone Number Function
-    for i in data.index:
-        data.at[i, targetColumn] = generate_Phone()
-
+    for i in data.index[0:-1]:
+        if i % 1 == 0:
+            data.at[i, targetColumn] = generatePhone()
+    for i in data.index[0:-1]:
+        if i % 3 == 1:
+            data.at[i, targetColumn] = generate_phone_format()
+    for i in data.index[0:-1]:
+        if i % 5 == 1:
+            data.at[i, targetColumn] = generate_phone_format_three()
+   
 
 def generateNationalIdentifier(data, targetColumn):      #Function that generates national identifiers
     for i in data.index:
@@ -244,8 +282,14 @@ def generateNationalIdentifier(data, targetColumn):      #Function that generate
 def generate_SSN(): #Actual method that generates SSN's
     return fake.ssn()
 
-def generate_Phone(): #Actual method that generates phone numbers
+def generatePhone(): #Actual method that generates phone numbers
     return fake.numerify("(###)-###-####")
+
+def generate_phone_format(): #Actual method that generates phone numbers
+    return fake.numerify("###-###-####")
+
+def generate_phone_format_three(): #Actual method that generates phone numbers
+    return fake.numerify("### ### ####")
 
 def exportData(data):
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
@@ -254,7 +298,7 @@ def exportData(data):
         topLabel["text"] = "File succesfully exported."
     else:
         topLabel["text"] = "File failed to export."
-    
+   
 
 def reorderColumns(data, targetColumn):
     if targetColumn == "PhoneNumber":
@@ -264,7 +308,7 @@ def reorderColumns(data, targetColumn):
         readColumns(data)
         exportBTN.destroy()
         reorderBTN.destroy()
-        exporttBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+        exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
         exporttBTN.pack()
     else:
         correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber"]
@@ -273,10 +317,10 @@ def reorderColumns(data, targetColumn):
         readColumns(data)
         exportBTN.destroy()
         reorderBTN.destroy()
-        exporttBTN = tk.Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+        exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
         exporttBTN.pack()
 
-def main():                                         #Everything within this "main()" Function is the actual application
+def openApplication():
     root = Tk()                                     #initializes the window and names it "root"
 
     global topWrapper                               #Makes the topWrapper a global variable so that it can be accessed in any Function
@@ -286,6 +330,11 @@ def main():                                         #Everything within this "mai
     global tv1                                      #Makes the treeview a global variable so that it can be accessed in any Function
     global topLabel
 
+    fileTypeChoice = StringVar()
+    fileTypeChoice.set("--Select a File Type--")
+
+    FILETYPEOPTIONS = [".CSV", ".DAT"]
+
     titleText = Label(root, text="Welcome to the Automated Data Scrambling Engine!") #Creates text that appears at top of application
     topWrapper = LabelFrame(root, text="Preview")                                    #Creates preview Section
     middleWrapper = LabelFrame(root, text="Configuration")                           #Creates configure Section
@@ -293,13 +342,15 @@ def main():                                         #Everything within this "mai
     fileNameLabel = Label(bottomWrapper, text="No file selected")                    #Creates text for selected file name
     topLabel = Label(topWrapper, text="View preview of data here:")                  #Creates text for top label
     tv1 = ttk.Treeview(topWrapper)                                                   #Creates treeview for previewing data
-    openFileBTN = tk.Button(bottomWrapper, text="Choose a File for Scrambling",      #Creates Open File Button
-    padx=10, pady=5, fg="white", bg="dark blue", command=addFile)
-    treescrolly = tk.Scrollbar(tv1, orient="vertical", command=tv1.yview)            #Updates the y-axis view of the widget
-    treescrollx = tk.Scrollbar(tv1, orient="horizontal", command=tv1.xview)          #Updates the x-axis view of the widget
+    fileTypeLabel = Label(bottomWrapper, text = "Please select the type of file you would like to upload")
+    fileTypeDropdown = OptionMenu(bottomWrapper, fileTypeChoice, *FILETYPEOPTIONS)
+    confirmFileTypeBTN = Button(bottomWrapper, text="Confirm File Type",      #Creates confirm file button
+    padx=10, pady=5, fg="white", bg="dark blue", command=lambda: fileType(fileTypeChoice))
+    treescrolly = Scrollbar(tv1, orient="vertical", command=tv1.yview)            #Updates the y-axis view of the widget
+    treescrollx = Scrollbar(tv1, orient="horizontal", command=tv1.xview)          #Updates the x-axis view of the widget
     tv1.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)    #Assigns the scrollbars to the Treeview
-    
-    
+   
+   
 
     titleText.pack(fill="both", expand="yes", padx=20, pady=20)      #Places title text widget in window
     topWrapper.pack(fill="both", expand="yes", padx=20, pady=20)     #Places topWrapper label frame in window
@@ -310,14 +361,19 @@ def main():                                         #Everything within this "mai
     tv1.pack(fill="both", expand="yes", padx=20, pady=20)            #Places treeview in topWrapper frame
     treescrollx.pack(side="bottom", fill="x")                        #Makes the scrollbar fill the x axis of the Treeview widget
     treescrolly.pack(side="right", fill="y")                         #Makes the scrollbar fill the y axis of the Treeview widget
-    openFileBTN.pack(expand = "true")                                #Places the Open File Button in bottomWrapper frame
+    fileTypeLabel.pack()
+    fileTypeDropdown.pack()
+    confirmFileTypeBTN.pack(expand = "true")                                #Places the Open File Button in bottomWrapper frame
 
 
     root.title("Automated Data Scrambling Engine")  #Sets window title to the name of our project
     root.geometry("800x700")                        #Sets window size to 800x700 pixels
     root.mainloop()                                 #Keeps window open and running
-    
 
+
+def main():                                         #Everything within this "main()" Function is the actual application
+    openApplication()
+   
 
 if __name__ == "__main__": #Checks to make sure the file is being run as a script and not imported into another file. (Basic Python Boilerplate)
     main()
