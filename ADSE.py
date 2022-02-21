@@ -78,7 +78,6 @@ def searchColumns(columns, data,
         print(possibleColumns)
         if bool(possibleColumns) == True:
             selectStreetAddress(possibleColumns, data, objectChoice, columns)
-            displayStreetLineDropdown(columns, data)
         else:
             columnNotFoundLabel = tk.Label(middleWrapper,
                                            text="There were not any columns matching that business object. Please select a different object.")
@@ -216,6 +215,21 @@ def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWid
     targetColumn = tColumn[0]
     # generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
 
+def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice):  # Function that creates config log and selects target column
+    configDict = {}
+    for i in possibleColumns:
+        configDict[i] = columnV[i].get()
+        columnWidgetYes[i].destroy()
+        columnWidgetNo[i].destroy()
+        columnNames[i].destroy()
+        confirmColumnBTN.destroy()
+    print(configDict)
+    tColumn = [k for k, v in configDict.items() if v == 1]
+    targetColumn = StringVar()
+    targetColumn = tColumn[0]
+    generateDataStreet(data, objectChoice, targetColumn, columns, streetChoice, frequencyChoice)
+
 
 def generateData(data, objectChoice, targetColumn,
                  columns):  # Function that reads business object choice and directs data to corresponding generate function
@@ -228,13 +242,7 @@ def generateData(data, objectChoice, targetColumn,
                            command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
     reorderBTN.pack()
-    if objectChoice.get() == "Street Address":
-        generateStreetAddress(data, targetColumn)
-        displayData(columns, data)
-    elif objectChoice.get() == "Email Address":
-        # generateEmailAddress(data, targetColumn)
-        displayData(columns, data)
-    elif objectChoice.get() == "Phone Number":
+    if objectChoice.get() == "Phone Number":
         generatePhoneNumber(data, targetColumn)
         displayData(columns, data)
     else:
@@ -242,20 +250,36 @@ def generateData(data, objectChoice, targetColumn,
         displayData(columns, data)
 
 
-# def generateDataEmail(data, objectChoice, targetColumn, columns,
-#                       domainChoice):  # Function that reads business object choice and directs data to corresponding generate function
-#     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
-#     global exportBTN
-#     global reorderBTN
-#     exportBTN = tk.Button(bottomWrapper, text="Export Data", padx=10, pady=5, fg="white", bg="dark blue",
-#                           command=lambda: exportData(data))
-#     reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
-#                            command=lambda: reorderColumns(data, targetColumn))
-#     exportBTN.pack()
-#     reorderBTN.pack()
-#
-#     generateEmailAddress(data, targetColumn, domainChoice)
-#     displayData(columns, data)
+def generateDataEmail(data, objectChoice, targetColumn, columns,
+                      domainChoice):  # Function that reads business object choice and directs data to corresponding generate function
+    topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
+    global exportBTN
+    global reorderBTN
+    exportBTN = tk.Button(bottomWrapper, text="Export Data", padx=10, pady=5, fg="white", bg="dark blue",
+                          command=lambda: exportData(data))
+    reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
+                           command=lambda: reorderColumns(data, targetColumn))
+    exportBTN.pack()
+    reorderBTN.pack()
+
+    generateEmailAddress(data, targetColumn, domainChoice)
+    displayData(columns, data)
+
+def generateDataStreet(data, objectChoice, targetColumn,
+                 columns, streetChoice, frequencyChoice):  # Function that reads business object choice and directs data to corresponding generate function
+    topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
+    global exportBTN
+    global reorderBTN
+    exportBTN = tk.Button(bottomWrapper, text="Export Data", padx=10, pady=5, fg="white", bg="dark blue",
+                          command=lambda: exportData(data))
+    reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
+                           command=lambda: reorderColumns(data, targetColumn))
+    exportBTN.pack()
+    reorderBTN.pack()
+
+    generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice)
+    displayData(columns, data)
+
 
 
 def selectStreetAddress(possibleColumns, data, objectChoice, columns):
@@ -264,8 +288,7 @@ def selectStreetAddress(possibleColumns, data, objectChoice, columns):
     entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
     streetEntry = Entry(middleWrapper, textvariable=streetChoice)
     confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
-                                 command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
-                                                                     streetChoice))
+                                 command=lambda: displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice))
     entryLabelStreet.pack()
     streetEntry.pack()
     confirmStreetBTN.pack()
@@ -273,7 +296,7 @@ def selectStreetAddress(possibleColumns, data, objectChoice, columns):
 
 
 def selectColumnsStreet(possibleColumns, data, objectChoice, columns,
-                       streetChoice):  # Function that creates radio buttons and allows user to select the column they want to affect
+                       streetChoice, frequencyChoice):  # Function that creates radio buttons and allows user to select the column they want to affect
     columnV = {}
     columnWidgetYes = {}
     columnWidgetNo = {}
@@ -296,13 +319,14 @@ def selectColumnsStreet(possibleColumns, data, objectChoice, columns,
     global confirmColumnBTN
     confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
                                  bg="dark blue",
-                                 command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes,
+                                 command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
                                                                       columnWidgetNo, columnNames, possibleColumns,
-                                                                      columns, streetChoice))
+                                                                      columns, streetChoice, frequencyChoice))
     confirmColumnBTN.pack(expand="true")
 
 
-def displayStreetLineDropdown(columns, data):  # Function that displays the dropdown to choose the business object
+def displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice):  # Function that displays the dropdown to choose the business object
+    clearFrame()
     STREETOBJECTS = ["10", "20", "50", "100"]
     frequencyChoice = tk.StringVar()
     frequencyChoice.set("--Street Address Line 2 Frequency--")
@@ -314,28 +338,31 @@ def displayStreetLineDropdown(columns, data):  # Function that displays the drop
     lineTwoFreqDropdown.pack()
     global confirmStreetBTN
     confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
-                                 bg="dark blue", command=lambda: searchColumns(columns, data, frequencyChoice))
+                                 bg="dark blue", command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
+                                                                     streetChoice, frequencyChoice))
     confirmStreetBTN.pack(expand="true")
 
-def generateStreetAddress(data, objectChoice, targetColumn, columns,
-                          streetChoice):  # Function that generates street addresses
+def generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice):  # Function that generates street addresses
     for i in data.index:
-        data.at[i, targetColumn] = generate_streetaddress()
+        data.at[i, targetColumn] = generate_streetaddress(data, targetColumn, columns, streetChoice, frequencyChoice, i)
+    print("test")
 
-def generate_streetaddress(data, objectChoice, targetColumn, columns,
-                          streetChoice, frequencyChoice):
-    displayData(columns, data)
-    for i in data.index:
-        data.at[i, targetColumn] = (i + " " + streetChoice)           #for each piece of data, create an address with their street name and incremented number
-        if i % frequencyChoice == 0:
-            StreetAddressLine2 = ("Unit "+i)                          #if the number is a multiple of their chosen number, create a street address line 2
-            data['StreetAddressLine2'] = StreetAddressLine2
-    return StreetAddressLine2
+def generate_streetaddress(data, targetColumn, columns,
+                          streetChoice, frequencyChoice, i):
+    x = str(i)
 
-# def generateEmailAddress(data, targetColumn, domainChoice):  # Function that generates email addresses
-#     # Generate Email Address Function
-#     domain = domainChoice.get()
-#     data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "@" + domain)
+
+
+    return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented number
+    #     if i % frequencyChoice == 0:
+    #         StreetAddressLine2 = ("Unit "+i)                          #if the number is a multiple of their chosen number, create a street address line 2
+    #         data['StreetAddressLine2'] = StreetAddressLine2
+    # return StreetAddressLine2
+
+def generateEmailAddress(data, targetColumn, domainChoice):  # Function that generates email addresses
+    # Generate Email Address Function
+    domain = domainChoice.get()
+    data[targetColumn] = data[targetColumn].apply(lambda x: x.split("@")[0] + "@" + domain)
 
 
 def generatePhoneNumber(data, targetColumn):  # Function that generates phone numbers
