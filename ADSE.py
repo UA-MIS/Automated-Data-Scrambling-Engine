@@ -1,16 +1,14 @@
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
 from tkinter import filedialog
 import pandas as pd
 import numpy as np
 import faker as faker
-import random
 
 fake = faker.Faker()
 
-def fileType(fileTypeChoice):
+def fileType(fileTypeChoice): #Function that routes user to whichever file upload they selected
     fileType = fileTypeChoice.get()
     if fileType == ".CSV":
         addCSVFile()
@@ -23,33 +21,30 @@ def fileType(fileTypeChoice):
         delimEntry.pack()
         delimConfirmBTN.pack()
 
-def addDATFile(delimChoice):
+def addDATFile(delimChoice): #Function that allows user to upload other files with different delimiters
     fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("all files", "*.*")))
-    print(delimChoice.get())
     data = pd.read_csv(fileName, header=0, sep=delimChoice.get())
-    print(fileName)
     fileNameLabel["text"] = fileName
     clearBottomFrame()
     readColumns(data)
 
 
-def addCSVFile(): #Function to open the filedialog and prompt the user to choose a file to upload into the application
+def addCSVFile(): #Function to open the filedialog and prompt the user to choose a CSV file to upload into the application
     fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
     data = pd.read_csv(fileName, header=0)
-    print(fileName)
     fileNameLabel["text"] = fileName
     clearBottomFrame()
     readColumns(data)
 
-def clearTopFrame():
+def clearTopFrame(): #Function that clears the top wrapper
     for widget in topWrapper.winfo_children():
         widget.destroy()
 
-def clearMiddleFrame():
+def clearMiddleFrame(): #Function that clears the middle wrapper
     for widget in middleWrapper.winfo_children():
         widget.destroy()
 
-def clearBottomFrame():
+def clearBottomFrame(): #Function that clears the bottom wrapper
     for widget in bottomWrapper.winfo_children():
         widget.destroy()
 
@@ -66,15 +61,21 @@ def displayData(columns, data): #Function that displays csv data in the preview
     for column in tv1["columns"]:
         tv1.heading(column, text=column)
     df_rows = data.to_numpy().tolist()
+    count = 0
     for row in df_rows:
-        tv1.insert("", "end", values=row)
+        if count < 20:
+            tv1.insert("", "end", values=row)
+            count += 1
     displayDropdown(columns, data)
 
 def updateData(data): #Function that updates data in the preview
     clear_data()
     df_rows = data.to_numpy().tolist()
+    count = 0
     for row in df_rows:
-        tv1.insert("", "end", values=row)
+        if count < 20:
+            tv1.insert("", "end", values=row)
+            count += 1
 
 def clear_data(): #Function that clears the preview so that it can be repopulated
     tv1.delete(*tv1.get_children())
@@ -94,12 +95,10 @@ def displayDropdown(columns, data): #Function that displays the dropdown to choo
     confirmObjectBTN.pack(expand = "true")
 
 def searchColumns(columns, data, objectChoice): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
-    print(columns)
     if objectChoice.get() == "Street Address":
         possibleColumns = [col for col in columns if 'Street' in col]
-        print(possibleColumns)
         if bool(possibleColumns) == True:
-            selectColumns(possibleColumns, data, objectChoice, columns)
+            selectStreetAddress(possibleColumns, data, objectChoice, columns)
         else:
             columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
             columnNotFoundLabel.pack()
@@ -129,7 +128,7 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
         message = Label(middleWrapper, text = "You must select a Business Object Type", fg = "red")
         message.pack()
 
-def selectDomain(possibleColumns, data, objectChoice, columns):
+def selectDomain(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a domain for generated email addresses
     clearMiddleFrame()
     domainChoice = StringVar()
     domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
@@ -138,6 +137,34 @@ def selectDomain(possibleColumns, data, objectChoice, columns):
     domainEntryLabel.pack()
     domainEntry.pack()
     confirmDomainBTN.pack()
+
+def selectStreetAddress(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a street name for generated street addresses
+    clearMiddleFrame()
+    streetChoice = StringVar()
+    entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
+    streetEntry = Entry(middleWrapper, textvariable=streetChoice)
+    confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
+                                 command=lambda: displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice))
+    entryLabelStreet.pack()
+    streetEntry.pack()
+    confirmStreetBTN.pack()
+
+def displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice):  # Function that displays the dropdown to choose the street line 2 frequency
+    clearMiddleFrame()
+    STREETOBJECTS = ["10", "20", "50", "100"]
+    frequencyChoice = tk.StringVar()
+    frequencyChoice.set("--Street Address Line 2 Frequency--")
+    global freqLabel
+    global lineTwoFreqDropdown
+    freqLabel = tk.Label(middleWrapper, text="Select the frequency of which you want :")
+    lineTwoFreqDropdown = tk.OptionMenu(middleWrapper, frequencyChoice, *STREETOBJECTS)
+    freqLabel.pack()
+    lineTwoFreqDropdown.pack()
+    global confirmStreetBTN
+    confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
+                                 bg="dark blue", command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
+                                                                     streetChoice, frequencyChoice))
+    confirmStreetBTN.pack(expand="true")
 
 def selectColumns(possibleColumns, data, objectChoice, columns): #Function that creates radio buttons and allows user to select the column they want to affect
     columnV = {}
@@ -163,7 +190,7 @@ def selectColumns(possibleColumns, data, objectChoice, columns): #Function that 
     confirmColumnBTN = Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
     confirmColumnBTN.pack(expand = "true")
 
-def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice): #Function that creates radio buttons and allows user to select the column they want to affect
+def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice): #Function that creates radio buttons and allows user to select the column they want to affect for EMAIL object
     columnV = {}
     columnWidgetYes = {}
     columnWidgetNo = {}
@@ -187,6 +214,35 @@ def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoic
     confirmColumnBTN = Button(middleWrapper, text="Confirm Configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice))
     confirmColumnBTN.pack(expand = "true")
 
+def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoice, frequencyChoice):  # Function that creates radio buttons and allows user to select the column they want to affect for STREET ADDRESS object
+    columnV = {}
+    columnWidgetYes = {}
+    columnWidgetNo = {}
+    columnNames = {}
+    clearMiddleFrame()
+
+    for i in possibleColumns:
+        v = tk.IntVar()
+        v.set(0)
+        columnName = tk.Label(middleWrapper, text="Column Name: " + i)
+        columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+        columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+        columnName.pack()
+        columnRadioYes.pack()
+        columnRadioNo.pack()
+        columnV[i] = v
+        columnWidgetYes[i] = columnRadioYes
+        columnWidgetNo[i] = columnRadioNo
+        columnNames[i] = columnName
+    global confirmColumnBTN
+    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
+                                 bg="dark blue",
+                                 command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
+                                                                      columnWidgetNo, columnNames, possibleColumns,
+                                                                      columns, streetChoice, frequencyChoice))
+    confirmColumnBTN.pack(expand="true")
+
+
 
 def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns): #Function that creates config log and selects target column
     configDict = {}
@@ -196,13 +252,12 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
         columnWidgetNo[i].destroy()
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
-    print(configDict)
     tColumn = [k for k, v in configDict.items() if v == 1]
     targetColumn = StringVar()
     targetColumn = tColumn[0]
     generateData(data, objectChoice, targetColumn, columns)
 
-def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice): #Function that creates config log and selects target column
+def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice): #Function that creates config log and selects target column for EMAIL object
     configDict = {}
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
@@ -210,11 +265,24 @@ def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWid
         columnWidgetNo[i].destroy()
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
-    print(configDict)
     tColumn = [k for k, v in configDict.items() if v == 1]
     targetColumn = StringVar()
     targetColumn = tColumn[0]
     generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
+
+def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice):  # Function that creates config log and selects target column for STREET ADDRESS object
+    configDict = {}
+    for i in possibleColumns:
+        configDict[i] = columnV[i].get()
+        columnWidgetYes[i].destroy()
+        columnWidgetNo[i].destroy()
+        columnNames[i].destroy()
+        confirmColumnBTN.destroy()
+    tColumn = [k for k, v in configDict.items() if v == 1]
+    targetColumn = StringVar()
+    targetColumn = tColumn[0]
+    generateDataStreet(data, objectChoice, targetColumn, columns, streetChoice, frequencyChoice)
 
 
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
@@ -238,7 +306,7 @@ def generateData(data, objectChoice, targetColumn, columns): #Function that read
         generateNationalIdentifier(data, targetColumn)
         displayData(columns, data)
 
-def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): #Function that reads business object choice and directs data to corresponding generate function
+def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): #Function that directs data to email generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
     global reorderBTN
@@ -249,15 +317,31 @@ def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): 
    
     generateEmailAddress(data, targetColumn, domainChoice)
     displayData(columns, data)
+
+def generateDataStreet(data, objectChoice, targetColumn,
+                 columns, streetChoice, frequencyChoice):  # Function that directs data to street address generate function
+    topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
+    global exportBTN
+    global reorderBTN
+    exportBTN = tk.Button(bottomWrapper, text="Export Data", padx=10, pady=5, fg="white", bg="dark blue",
+                          command=lambda: exportData(data))
+    reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
+                           command=lambda: reorderColumns(data, targetColumn))
+    exportBTN.pack()
+    reorderBTN.pack()
+
+    generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice)
+    displayData(columns, data)
    
 
-def generateStreetAddress(data, targetColumn):           #Function that generates street addresses
+def generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice):  # Function that generates street addresses
     for i in data.index:
-        data.at[i, targetColumn] = generate_streetaddress()
+        data.at[i, targetColumn] = generate_streetaddress(streetChoice, frequencyChoice, i)
        
 
-def generate_streetaddress():
-        return fake.street_address()
+def generate_streetaddress(streetChoice, frequencyChoice, i):
+    x = str(i + 110)
+    return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented 
 
 def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
     domain = domainChoice.get()
@@ -266,41 +350,42 @@ def generateEmailAddress(data, targetColumn, domainChoice):            #Function
 def generatePhoneNumber(data, targetColumn):             #Function that generates phone numbers
     for i in data.index[0:-1]:
         if i % 1 == 0:
-            data.at[i, targetColumn] = generatePhone()
+            data.at[i, targetColumn] = generatePhone() #normal format
     for i in data.index[0:-1]:
         if i % 3 == 1:
-            data.at[i, targetColumn] = generate_phone_format()
+            data.at[i, targetColumn] = generate_phone_format() #different format
     for i in data.index[0:-1]:
         if i % 5 == 1:
-            data.at[i, targetColumn] = generate_phone_format_three()
+            data.at[i, targetColumn] = generate_phone_format_three() #different format
    
 
 def generateNationalIdentifier(data, targetColumn):      #Function that generates national identifiers
     for i in data.index:
         data.at[i, targetColumn] = generate_SSN()
 
-def generate_SSN(): #Actual method that generates SSN's
+def generate_SSN(): #Actual Function that generates SSN's
     return fake.ssn()
 
-def generatePhone(): #Actual method that generates phone numbers
+def generatePhone(): #Actual Function that generates phone numbers
     return fake.numerify("(###)-###-####")
 
-def generate_phone_format(): #Actual method that generates phone numbers
+def generate_phone_format(): #Actual Function that generates phone numbers
     return fake.numerify("###-###-####")
 
-def generate_phone_format_three(): #Actual method that generates phone numbers
+def generate_phone_format_three(): #Actual Function that generates phone numbers
     return fake.numerify("### ### ####")
 
-def exportData(data):
+def exportData(data): #Function that exports data as pipe delimited .dat file
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
     data.to_csv(savePath, sep = "|", index = False)
+    print(savePath)
     if bool(savePath) == True:
         topLabel["text"] = "File succesfully exported."
     else:
         topLabel["text"] = "File failed to export."
-   
 
-def reorderColumns(data, targetColumn):
+
+def reorderColumns(data, targetColumn): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
     if targetColumn == "PhoneNumber":
         correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber", "PhoneType"]
         data = data[correctOrder]
@@ -320,7 +405,7 @@ def reorderColumns(data, targetColumn):
         exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
         exporttBTN.pack()
 
-def openApplication():
+def openApplication(): #Function that opens the application
     root = Tk()                                     #initializes the window and names it "root"
 
     global topWrapper                               #Makes the topWrapper a global variable so that it can be accessed in any Function
