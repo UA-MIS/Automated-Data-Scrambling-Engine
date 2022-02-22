@@ -140,11 +140,13 @@ def selectDomain(possibleColumns, data, objectChoice, columns): #Function that p
 
 def selectStreetAddress(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a street name for generated street addresses
     clearMiddleFrame()
+    frequencyChoice = 1
     streetChoice = StringVar()
     entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
     streetEntry = Entry(middleWrapper, textvariable=streetChoice)
     confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
-                                 command=lambda: displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice))
+                                 command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns, #NEED TO SWITCH THIS METHOD BACK AFTER DEMO
+                                                                     streetChoice, frequencyChoice))
     entryLabelStreet.pack()
     streetEntry.pack()
     confirmStreetBTN.pack()
