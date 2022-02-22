@@ -8,7 +8,7 @@ import faker as faker
 
 fake = faker.Faker()
 
-def fileType(fileTypeChoice): #Method that routes user to whichever file upload they selected
+def fileType(fileTypeChoice): #Function that routes user to whichever file upload they selected
     fileType = fileTypeChoice.get()
     if fileType == ".CSV":
         addCSVFile()
@@ -21,11 +21,9 @@ def fileType(fileTypeChoice): #Method that routes user to whichever file upload 
         delimEntry.pack()
         delimConfirmBTN.pack()
 
-def addDATFile(delimChoice): #Method that allows user to upload other files with different delimiters
+def addDATFile(delimChoice): #Function that allows user to upload other files with different delimiters
     fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("all files", "*.*")))
-    print(delimChoice.get())
     data = pd.read_csv(fileName, header=0, sep=delimChoice.get())
-    print(fileName)
     fileNameLabel["text"] = fileName
     clearBottomFrame()
     readColumns(data)
@@ -34,20 +32,19 @@ def addDATFile(delimChoice): #Method that allows user to upload other files with
 def addCSVFile(): #Function to open the filedialog and prompt the user to choose a CSV file to upload into the application
     fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
     data = pd.read_csv(fileName, header=0)
-    print(fileName)
     fileNameLabel["text"] = fileName
     clearBottomFrame()
     readColumns(data)
 
-def clearTopFrame(): #Method that clears the top wrapper
+def clearTopFrame(): #Function that clears the top wrapper
     for widget in topWrapper.winfo_children():
         widget.destroy()
 
-def clearMiddleFrame(): #Method that clears the middle wrapper
+def clearMiddleFrame(): #Function that clears the middle wrapper
     for widget in middleWrapper.winfo_children():
         widget.destroy()
 
-def clearBottomFrame(): #Method that clears the bottom wrapper
+def clearBottomFrame(): #Function that clears the bottom wrapper
     for widget in bottomWrapper.winfo_children():
         widget.destroy()
 
@@ -98,10 +95,8 @@ def displayDropdown(columns, data): #Function that displays the dropdown to choo
     confirmObjectBTN.pack(expand = "true")
 
 def searchColumns(columns, data, objectChoice): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
-    print(columns)
     if objectChoice.get() == "Street Address":
         possibleColumns = [col for col in columns if 'Street' in col]
-        print(possibleColumns)
         if bool(possibleColumns) == True:
             selectStreetAddress(possibleColumns, data, objectChoice, columns)
         else:
@@ -133,7 +128,7 @@ def searchColumns(columns, data, objectChoice): #Function that searches through 
         message = Label(middleWrapper, text = "You must select a Business Object Type", fg = "red")
         message.pack()
 
-def selectDomain(possibleColumns, data, objectChoice, columns): #Method that prompts user to enter a domain for generated email addresses
+def selectDomain(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a domain for generated email addresses
     clearMiddleFrame()
     domainChoice = StringVar()
     domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
@@ -143,7 +138,7 @@ def selectDomain(possibleColumns, data, objectChoice, columns): #Method that pro
     domainEntry.pack()
     confirmDomainBTN.pack()
 
-def selectStreetAddress(possibleColumns, data, objectChoice, columns): #Method that prompts user to enter a street name for generated street addresses
+def selectStreetAddress(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a street name for generated street addresses
     clearMiddleFrame()
     streetChoice = StringVar()
     entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
@@ -257,7 +252,6 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
         columnWidgetNo[i].destroy()
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
-    print(configDict)
     tColumn = [k for k, v in configDict.items() if v == 1]
     targetColumn = StringVar()
     targetColumn = tColumn[0]
@@ -271,7 +265,6 @@ def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWid
         columnWidgetNo[i].destroy()
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
-    print(configDict)
     tColumn = [k for k, v in configDict.items() if v == 1]
     targetColumn = StringVar()
     targetColumn = tColumn[0]
@@ -286,7 +279,6 @@ def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWi
         columnWidgetNo[i].destroy()
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
-    print(configDict)
     tColumn = [k for k, v in configDict.items() if v == 1]
     targetColumn = StringVar()
     targetColumn = tColumn[0]
@@ -348,7 +340,7 @@ def generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyCh
        
 
 def generate_streetaddress(streetChoice, frequencyChoice, i):
-    x = str(i)
+    x = str(i + 110)
     return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented 
 
 def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
@@ -371,19 +363,19 @@ def generateNationalIdentifier(data, targetColumn):      #Function that generate
     for i in data.index:
         data.at[i, targetColumn] = generate_SSN()
 
-def generate_SSN(): #Actual method that generates SSN's
+def generate_SSN(): #Actual Function that generates SSN's
     return fake.ssn()
 
-def generatePhone(): #Actual method that generates phone numbers
+def generatePhone(): #Actual Function that generates phone numbers
     return fake.numerify("(###)-###-####")
 
-def generate_phone_format(): #Actual method that generates phone numbers
+def generate_phone_format(): #Actual Function that generates phone numbers
     return fake.numerify("###-###-####")
 
-def generate_phone_format_three(): #Actual method that generates phone numbers
+def generate_phone_format_three(): #Actual Function that generates phone numbers
     return fake.numerify("### ### ####")
 
-def exportData(data): #method that exports data as pipe delimited .dat file
+def exportData(data): #Function that exports data as pipe delimited .dat file
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
     data.to_csv(savePath, sep = "|", index = False)
     print(savePath)
@@ -393,7 +385,7 @@ def exportData(data): #method that exports data as pipe delimited .dat file
         topLabel["text"] = "File failed to export."
 
 
-def reorderColumns(data, targetColumn): # method that reorders columns based on what they need the order to be **STILL NEED ORDER
+def reorderColumns(data, targetColumn): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
     if targetColumn == "PhoneNumber":
         correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber", "PhoneType"]
         data = data[correctOrder]
@@ -413,7 +405,7 @@ def reorderColumns(data, targetColumn): # method that reorders columns based on 
         exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
         exporttBTN.pack()
 
-def openApplication(): #Method that opens the application
+def openApplication(): #Function that opens the application
     root = Tk()                                     #initializes the window and names it "root"
 
     global topWrapper                               #Makes the topWrapper a global variable so that it can be accessed in any Function
