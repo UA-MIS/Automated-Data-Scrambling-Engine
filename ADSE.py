@@ -1,3 +1,4 @@
+from pickle import EMPTY_LIST
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
@@ -9,14 +10,30 @@ import faker as faker
 fake = faker.Faker()
 
 def add_file(delim_choice): #Function that allows user to upload other files with different delimiters
-    if delim_choice.get() == ',':
-        file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
+    if delim_choice.get() == "":
+        clearBottomFrame()
+        global fileNameLabel
+        fileNameLabel = Label(bottomWrapper, text="No file selected")
+        fileNameLabel.pack()
+        delim_choice = StringVar()
+        no_delimiter_label = Label(bottomWrapper, text = "No delimiter chosen.", fg = "red")
+        no_delimiter_label.pack()
+        delimEntryLabel = Label(bottomWrapper, text = "Please enter the delimiter your file uses:")
+        delimEntry = Entry(bottomWrapper, textvariable = delim_choice)
+        delimConfirmBTN = Button(bottomWrapper, text="Confirm Delimiter", command = lambda: add_file(delim_choice))
+        delimEntryLabel.pack()
+        delimEntry.pack()
+        delimConfirmBTN.pack()
     else:
-        file_name = filedialog.askopenfilename(initialdir="/", title="Select File")
-    data = pd.read_csv(file_name, header=0, sep=delim_choice.get())
-    fileNameLabel["text"] = file_name
-    clearBottomFrame()
-    readColumns(data)
+        if delim_choice.get() == ',':
+            file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
+        else:
+            file_name = filedialog.askopenfilename(initialdir="/", title="Select File")
+        data = pd.read_csv(file_name, header=0, sep=delim_choice.get())
+        print(file_name)
+        fileNameLabel["text"] = file_name
+        clearBottomFrame()
+        readColumns(data)
 
 def clearTopFrame(): #Function that clears the top wrapper
     for widget in topWrapper.winfo_children():
@@ -67,169 +84,399 @@ def displayDropdown(columns, data): #Function that displays the dropdown to choo
     BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
     objectChoice = StringVar()
     objectChoice.set("--Business Object--")
-    global dropdownLabel
-    global objectDropdown
     dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
     objectDropdown = OptionMenu(middleWrapper, objectChoice, *BUSINESSOBJECTS)
     dropdownLabel.pack()
     objectDropdown.pack()
-    global confirmObjectBTN
-    confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, objectChoice))
+    prior_error = False
+    confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, objectChoice, prior_error))
     confirmObjectBTN.pack(expand = "true")
 
-def searchColumns(columns, data, objectChoice): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
-    if objectChoice.get() == "Street Address":
-        possibleColumns = [col for col in columns if 'Street' in col]
-        if bool(possibleColumns) == True:
-            selectStreetAddress(possibleColumns, data, objectChoice, columns)
-        else:
-            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
-            columnNotFoundLabel.pack()
-    elif objectChoice.get() == "Email Address":
-        possibleColumns = [col for col in columns if 'Email' in col]
-        if bool(possibleColumns) == True:
-            selectDomain(possibleColumns, data, objectChoice, columns)
-        else:
-            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
-            columnNotFoundLabel.pack()
-    elif objectChoice.get() == "Phone Number":
-        possibleColumns = [col for col in columns if 'Phone' in col]
-        if bool(possibleColumns) == True:
-            selectColumns(possibleColumns, data, objectChoice, columns)
-        else:
-            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
-            columnNotFoundLabel.pack()
-    elif objectChoice.get() == "National Identifier":
-        possibleColumns = [col for col in columns if 'SSN' in col]
-        if bool(possibleColumns) == True:
-            selectColumns(possibleColumns, data, objectChoice, columns)
-        else:
-            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.")
-            columnNotFoundLabel.pack()
+def searchColumns(columns, data, objectChoice, prior_error): #Function that searches through the data's columns to find the ones that match the business object they want to scramble
+    if prior_error:
+        if objectChoice.get() == "Street Address":
+            possibleColumns = [col for col in columns if 'Street' in col]
+            if bool(possibleColumns) == True:
+                is_street_empty = False
+                selectStreetAddress(possibleColumns, data, objectChoice, columns, is_street_empty)
+        elif objectChoice.get() == "Email Address":
+            possibleColumns = [col for col in columns if 'Email' in col]
+            if bool(possibleColumns) == True:
+                is_domain_empty = False
+                selectDomain(possibleColumns, data, objectChoice, columns, is_domain_empty)
+        elif objectChoice.get() == "Phone Number":
+            possibleColumns = [col for col in columns if 'Phone' in col]
+            if bool(possibleColumns) == True:
+                is_column_selected = True
+                selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected)
+        elif objectChoice.get() == "National Identifier":
+            possibleColumns = [col for col in columns if 'SSN' in col]
+            if bool(possibleColumns) == True:
+                is_column_selected = True
+                selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected)
     else:
-        global message
-        message = Label(middleWrapper, text = "You must select a Business Object Type", fg = "red")
-        message.pack()
+        if objectChoice.get() == "Street Address":
+            possibleColumns = [col for col in columns if 'Street' in col]
+            if bool(possibleColumns) == True:
+                is_street_empty = False
+                selectStreetAddress(possibleColumns, data, objectChoice, columns, is_street_empty)
+            else:
+                clearMiddleFrame()
+                BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
+                object = StringVar()
+                object.set("--Business Object--")
+                dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+                objectDropdown = OptionMenu(middleWrapper, object, *BUSINESSOBJECTS)
+                dropdownLabel.pack()
+                objectDropdown.pack()
+                error = True
+                confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, object, error))
+                confirmObjectBTN.pack(expand = "true")
+                columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.", fg = "red")
+                columnNotFoundLabel.pack()
+        elif objectChoice.get() == "Email Address":
+            possibleColumns = [col for col in columns if 'Email' in col]
+            if bool(possibleColumns) == True:
+                is_domain_empty = False
+                selectDomain(possibleColumns, data, objectChoice, columns, is_domain_empty)
+            else:
+                clearMiddleFrame()
+                BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
+                object = StringVar()
+                object.set("--Business Object--")
+                dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+                objectDropdown = OptionMenu(middleWrapper, object, *BUSINESSOBJECTS)
+                dropdownLabel.pack()
+                objectDropdown.pack()
+                error = True
+                confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, object, error))
+                confirmObjectBTN.pack(expand = "true")
+                columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.", fg = "red")
+                columnNotFoundLabel.pack()
+        elif objectChoice.get() == "Phone Number":
+            possibleColumns = [col for col in columns if 'Phone' in col]
+            if bool(possibleColumns) == True:
+                is_column_selected = True
+                selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected)
+            else:
+                clearMiddleFrame()
+                BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
+                object = StringVar()
+                object.set("--Business Object--")
+                dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+                objectDropdown = OptionMenu(middleWrapper, object, *BUSINESSOBJECTS)
+                dropdownLabel.pack()
+                objectDropdown.pack()
+                error = True
+                confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, object, error))
+                confirmObjectBTN.pack(expand = "true")
+                columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.", fg = "red")
+                columnNotFoundLabel.pack()
+        elif objectChoice.get() == "National Identifier":
+            possibleColumns = [col for col in columns if 'SSN' in col]
+            if bool(possibleColumns) == True:
+                is_column_selected = True
+                selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected)
+            else:
+                clearMiddleFrame()
+                BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
+                object = StringVar()
+                object.set("--Business Object--")
+                dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+                objectDropdown = OptionMenu(middleWrapper, object, *BUSINESSOBJECTS)
+                dropdownLabel.pack()
+                objectDropdown.pack()
+                error = True
+                confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, object, error))
+                confirmObjectBTN.pack(expand = "true")
+                columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.", fg = "red")
+                columnNotFoundLabel.pack()
+        else:
+            clearMiddleFrame()
+            BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier"]
+            object = StringVar()
+            object.set("--Business Object--")
+            dropdownLabel = Label(middleWrapper, text="Select the Business Object that corresponds with your file:")
+            objectDropdown = OptionMenu(middleWrapper, object, *BUSINESSOBJECTS)
+            dropdownLabel.pack()
+            objectDropdown.pack()
+            prior_error = True
+            confirmObjectBTN = Button(middleWrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: searchColumns(columns, data, object, prior_error))
+            confirmObjectBTN.pack(expand = "true")
+            columnNotFoundLabel = Label(middleWrapper, text = "There were not any columns matching that business object. Please select a different object.", fg = "red")
+            columnNotFoundLabel.pack()
 
-def selectDomain(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a domain for generated email addresses
-    clearMiddleFrame()
-    domainChoice = StringVar()
-    domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
-    domainEntry = Entry(middleWrapper, textvariable = domainChoice)
-    confirmDomainBTN = Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice))
-    domainEntryLabel.pack()
-    domainEntry.pack()
-    confirmDomainBTN.pack()
+def selectDomain(possibleColumns, data, objectChoice, columns, is_domain_empty): #Function that prompts user to enter a domain for generated email addresses
+    if is_domain_empty == False:
+        clearMiddleFrame()
+        domainChoice = StringVar()
+        domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
+        domainEntry = Entry(middleWrapper, textvariable = domainChoice)
+        is_column_selected = True
+        confirmDomainBTN = Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice, is_domain_empty, is_column_selected))
+        domainEntryLabel.pack()
+        domainEntry.pack()
+        confirmDomainBTN.pack()
+    else:
+        clearMiddleFrame()
+        empty_domain_label = Label(middleWrapper, text = "The domain is empty. Please enter a domain.", fg = "red")
+        empty_domain_label.pack()
+        domainChoice = StringVar()
+        domainEntryLabel = Label(middleWrapper, text = "Please enter the domain you want to use for generated data:")
+        domainEntry = Entry(middleWrapper, textvariable = domainChoice)
+        is_column_selected = True
+        confirmDomainBTN = Button(middleWrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice, is_domain_empty, is_column_selected))
+        domainEntryLabel.pack()
+        domainEntry.pack()
+        confirmDomainBTN.pack()
+    
 
-def selectStreetAddress(possibleColumns, data, objectChoice, columns): #Function that prompts user to enter a street name for generated street addresses
-    clearMiddleFrame()
-    frequencyChoice = 1
-    streetChoice = StringVar()
-    entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
-    streetEntry = Entry(middleWrapper, textvariable=streetChoice)
-    confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
-                                 command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns, #NEED TO SWITCH THIS METHOD BACK AFTER DEMO
-                                                                     streetChoice, frequencyChoice))
-    entryLabelStreet.pack()
-    streetEntry.pack()
-    confirmStreetBTN.pack()
+def selectStreetAddress(possibleColumns, data, objectChoice, columns, is_street_empty): #Function that prompts user to enter a street name for generated street addresses
+    if is_street_empty == False:
+        clearMiddleFrame()
+        streetChoice = StringVar()
+        entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
+        streetEntry = Entry(middleWrapper, textvariable=streetChoice)
+        frequency_error = False
+        confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
+                                    command=lambda: displayStreetLineDropdown(possibleColumns, columns, data, objectChoice,  #NEED TO SWITCH THIS METHOD BACK AFTER DEMO
+                                                                        streetChoice, is_street_empty, frequency_error))
+        entryLabelStreet.pack()
+        streetEntry.pack()
+        confirmStreetBTN.pack()
+    else:
+        clearMiddleFrame()
+        empty_street_label = Label(middleWrapper, text = "The street name is empty. Please enter a street name.", fg = "red")
+        empty_street_label.pack()
+        streetChoice = StringVar()
+        entryLabelStreet = Label(middleWrapper, text="Please enter the street address you want to use for generated data:")
+        streetEntry = Entry(middleWrapper, textvariable=streetChoice)
+        frequency_error = False
+        confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
+                                    command=lambda: displayStreetLineDropdown(possibleColumns, columns, data, objectChoice,  #NEED TO SWITCH THIS METHOD BACK AFTER DEMO
+                                                                        streetChoice, is_street_empty, frequency_error))
+        entryLabelStreet.pack()
+        streetEntry.pack()
+        confirmStreetBTN.pack()
 
-def displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice):  # Function that displays the dropdown to choose the street line 2 frequency
-    clearMiddleFrame()
-    STREETOBJECTS = ["10", "20", "50", "100"]
-    frequencyChoice = tk.StringVar()
-    frequencyChoice.set("--Street Address Line 2 Frequency--")
-    global freqLabel
-    global lineTwoFreqDropdown
-    freqLabel = tk.Label(middleWrapper, text="Select the frequency of which you want :")
-    lineTwoFreqDropdown = tk.OptionMenu(middleWrapper, frequencyChoice, *STREETOBJECTS)
-    freqLabel.pack()
-    lineTwoFreqDropdown.pack()
-    global confirmStreetBTN
-    confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
-                                 bg="dark blue", command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
-                                                                     streetChoice, frequencyChoice))
-    confirmStreetBTN.pack(expand="true")
+def displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice, is_street_empty, frequency_error):  # Function that displays the dropdown to choose the street line 2 frequency
+    if frequency_error == False:
+        if streetChoice.get() == "":
+            is_street_empty = True
+            selectStreetAddress(possibleColumns, data, objectChoice, columns, is_street_empty)
+        else:
+            clearMiddleFrame()
+            STREETOBJECTS = ["10", "20", "50", "100"]
+            frequencyChoice = tk.StringVar()
+            frequencyChoice.set("--Street Address Line 2 Frequency--")
+            freqLabel = tk.Label(middleWrapper, text="Select the frequency of which you want :")
+            lineTwoFreqDropdown = tk.OptionMenu(middleWrapper, frequencyChoice, *STREETOBJECTS)
+            freqLabel.pack()
+            lineTwoFreqDropdown.pack()
+            is_column_selected = True
+            confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
+                                        bg="dark blue", command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
+                                                                            streetChoice, frequencyChoice, is_street_empty, frequency_error, is_column_selected))
+            confirmStreetBTN.pack(expand="true")
+    else:
+        if streetChoice.get() == "":
+            is_street_empty = True
+            selectStreetAddress(possibleColumns, data, objectChoice, columns, is_street_empty)
+        else:
+            clearMiddleFrame()
+            STREETOBJECTS = ["10", "20", "50", "100"]
+            frequencyChoice = tk.StringVar()
+            columnNotFoundLabel = Label(middleWrapper, text = "No frequency selected. Please select a frequency.", fg = "red")
+            columnNotFoundLabel.pack()
+            frequencyChoice.set("--Street Address Line 2 Frequency--")
+            freqLabel = tk.Label(middleWrapper, text="Select the frequency of which you want :")
+            lineTwoFreqDropdown = tk.OptionMenu(middleWrapper, frequencyChoice, *STREETOBJECTS)
+            freqLabel.pack()
+            lineTwoFreqDropdown.pack()
+            is_column_selected = True
+            confirmStreetBTN = tk.Button(middleWrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
+                                        bg="dark blue", command=lambda: selectColumnsStreet(possibleColumns, data, objectChoice, columns,
+                                                                            streetChoice, frequencyChoice, is_street_empty, frequency_error, is_column_selected))
+            confirmStreetBTN.pack(expand="true")
+            
 
-def selectColumns(possibleColumns, data, objectChoice, columns): #Function that creates radio buttons and allows user to select the column they want to affect
-    columnV = {}
-    columnWidgetYes = {}
-    columnWidgetNo = {}
-    columnNames = {}
-    clearMiddleFrame()
+def selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected): #Function that creates radio buttons and allows user to select the column they want to affect
+    if is_column_selected == True:
+        columnV = {}
+        columnWidgetYes = {}
+        columnWidgetNo = {}
+        columnNames = {}
+        clearMiddleFrame()
 
-    for i in possibleColumns:
-        v = IntVar()
-        v.set(0)
-        columnName = Label(middleWrapper, text="Column Name: "+ i)
-        columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
-        columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
-        columnName.pack()
-        columnRadioYes.pack()
-        columnRadioNo.pack()
-        columnV[i] = v
-        columnWidgetYes[i] = columnRadioYes
-        columnWidgetNo[i] = columnRadioNo
-        columnNames[i] = columnName
-    global confirmColumnBTN
-    confirmColumnBTN = Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns))
-    confirmColumnBTN.pack(expand = "true")
+        for i in possibleColumns:
+            v = IntVar()
+            v.set(0)
+            columnName = Label(middleWrapper, text="Column Name: "+ i)
+            columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+            columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+            columnName.pack()
+            columnRadioYes.pack()
+            columnRadioNo.pack()
+            columnV[i] = v
+            columnWidgetYes[i] = columnRadioYes
+            columnWidgetNo[i] = columnRadioNo
+            columnNames[i] = columnName
+        global confirmColumnBTN
+        confirmColumnBTN = Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, is_column_selected))
+        confirmColumnBTN.pack(expand = "true")
+    else:
+        columnV = {}
+        columnWidgetYes = {}
+        columnWidgetNo = {}
+        columnNames = {}
+        clearMiddleFrame()
+        no_column_selected_label = Label(middleWrapper, text = "No columns selected. Please select a column.", fg = "red")
+        no_column_selected_label.pack()
 
-def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice): #Function that creates radio buttons and allows user to select the column they want to affect for EMAIL object
-    columnV = {}
-    columnWidgetYes = {}
-    columnWidgetNo = {}
-    columnNames = {}
-    clearMiddleFrame()
+        for i in possibleColumns:
+            v = IntVar()
+            v.set(0)
+            columnName = Label(middleWrapper, text="Column Name: "+ i)
+            columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+            columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+            columnName.pack()
+            columnRadioYes.pack()
+            columnRadioNo.pack()
+            columnV[i] = v
+            columnWidgetYes[i] = columnRadioYes
+            columnWidgetNo[i] = columnRadioNo
+            columnNames[i] = columnName
+        global confirmColBTN
+        confirmColBTN = Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, is_column_selected))
+        confirmColBTN.pack(expand = "true")
 
-    for i in possibleColumns:
-        v = IntVar()
-        v.set(0)
-        columnName = Label(middleWrapper, text="Column Name: "+ i)
-        columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
-        columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
-        columnName.pack()
-        columnRadioYes.pack()
-        columnRadioNo.pack()
-        columnV[i] = v
-        columnWidgetYes[i] = columnRadioYes
-        columnWidgetNo[i] = columnRadioNo
-        columnNames[i] = columnName
-    global confirmColumnBTN
-    confirmColumnBTN = Button(middleWrapper, text="Confirm Configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice))
-    confirmColumnBTN.pack(expand = "true")
+def selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice, is_domain_empty, is_column_selected): #Function that creates radio buttons and allows user to select the column they want to affect for EMAIL object
+    if is_column_selected == True:
+        if domainChoice.get() == "":
+            is_domain_empty = True
+            selectDomain(possibleColumns, data, objectChoice, columns, is_domain_empty)
+        else:
+            columnV = {}
+            columnWidgetYes = {}
+            columnWidgetNo = {}
+            columnNames = {}
+            clearMiddleFrame()
 
-def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoice, frequencyChoice):  # Function that creates radio buttons and allows user to select the column they want to affect for STREET ADDRESS object
-    columnV = {}
-    columnWidgetYes = {}
-    columnWidgetNo = {}
-    columnNames = {}
-    clearMiddleFrame()
+            for i in possibleColumns:
+                v = IntVar()
+                v.set(0)
+                columnName = Label(middleWrapper, text="Column Name: "+ i)
+                columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+                columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+                columnName.pack()
+                columnRadioYes.pack()
+                columnRadioNo.pack()
+                columnV[i] = v
+                columnWidgetYes[i] = columnRadioYes
+                columnWidgetNo[i] = columnRadioNo
+                columnNames[i] = columnName
+            global confirmColumnBTN
+            confirmColumnBTN = Button(middleWrapper, text="Confirm Configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice, is_domain_empty, is_column_selected))
+            confirmColumnBTN.pack(expand = "true")
+    else:
+        if domainChoice.get() == "":
+            is_domain_empty = True
+            selectDomain(possibleColumns, data, objectChoice, columns, is_domain_empty)
+        else:
+            columnV = {}
+            columnWidgetYes = {}
+            columnWidgetNo = {}
+            columnNames = {}
+            clearMiddleFrame()
+            no_column_selected_label = Label(middleWrapper, text = "No columns selected. Please select a column.", fg = "red")
+            no_column_selected_label.pack()
 
-    for i in possibleColumns:
-        v = tk.IntVar()
-        v.set(0)
-        columnName = tk.Label(middleWrapper, text="Column Name: " + i)
-        columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
-        columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
-        columnName.pack()
-        columnRadioYes.pack()
-        columnRadioNo.pack()
-        columnV[i] = v
-        columnWidgetYes[i] = columnRadioYes
-        columnWidgetNo[i] = columnRadioNo
-        columnNames[i] = columnName
-    global confirmColumnBTN
-    confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
-                                 bg="dark blue",
-                                 command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
-                                                                      columnWidgetNo, columnNames, possibleColumns,
-                                                                      columns, streetChoice, frequencyChoice))
-    confirmColumnBTN.pack(expand="true")
+            for i in possibleColumns:
+                v = IntVar()
+                v.set(0)
+                columnName = Label(middleWrapper, text="Column Name: "+ i)
+                columnRadioYes = Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+                columnRadioNo = Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+                columnName.pack()
+                columnRadioYes.pack()
+                columnRadioNo.pack()
+                columnV[i] = v
+                columnWidgetYes[i] = columnRadioYes
+                columnWidgetNo[i] = columnRadioNo
+                columnNames[i] = columnName
+            global confirmBTN
+            confirmBTN = Button(middleWrapper, text="Confirm Configuration", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice, is_domain_empty, is_column_selected))
+            confirmBTN.pack(expand = "true")
+    
+
+def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoice, frequencyChoice, is_street_empty, frequency_error, is_column_selected):  # Function that creates radio buttons and allows user to select the column they want to affect for STREET ADDRESS object
+    if is_column_selected == True:
+        if frequencyChoice.get() == "--Street Address Line 2 Frequency--":
+            frequency_error = True
+            displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice, is_street_empty, frequency_error)
+        else:
+            columnV = {}
+            columnWidgetYes = {}
+            columnWidgetNo = {}
+            columnNames = {}
+            clearMiddleFrame()
+
+            for i in possibleColumns:
+                v = tk.IntVar()
+                v.set(0)
+                columnName = tk.Label(middleWrapper, text="Column Name: " + i)
+                columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+                columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+                columnName.pack()
+                columnRadioYes.pack()
+                columnRadioNo.pack()
+                columnV[i] = v
+                columnWidgetYes[i] = columnRadioYes
+                columnWidgetNo[i] = columnRadioNo
+                columnNames[i] = columnName
+            global confirmColumnBTN
+            confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
+                                        bg="dark blue",
+                                        command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
+                                                                            columnWidgetNo, columnNames, possibleColumns,
+                                                                            columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error))
+            confirmColumnBTN.pack(expand="true")
+    else:
+        if frequencyChoice.get() == "--Street Address Line 2 Frequency--":
+            frequency_error = True
+            displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice, is_street_empty, frequency_error)
+        else:
+            columnV = {}
+            columnWidgetYes = {}
+            columnWidgetNo = {}
+            columnNames = {}
+            clearMiddleFrame()
+            no_column_selected_label = Label(middleWrapper, text = "No columns selected. Please select a column.", fg = "red")
+            no_column_selected_label.pack()
+
+            for i in possibleColumns:
+                v = tk.IntVar()
+                v.set(0)
+                columnName = tk.Label(middleWrapper, text="Column Name: " + i)
+                columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v, value=1)
+                columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v, value=0)
+                columnName.pack()
+                columnRadioYes.pack()
+                columnRadioNo.pack()
+                columnV[i] = v
+                columnWidgetYes[i] = columnRadioYes
+                columnWidgetNo[i] = columnRadioNo
+                columnNames[i] = columnName
+            global confirmBTN
+            confirmBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
+                                        bg="dark blue",
+                                        command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
+                                                                            columnWidgetNo, columnNames, possibleColumns,
+                                                                            columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error))
+            confirmBTN.pack(expand="true")
 
 
-
-def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns): #Function that creates config log and selects target column
+def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, is_column_selected): #Function that creates config log and selects target column
     configDict = {}
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
@@ -238,11 +485,16 @@ def createConfigLog(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
     tColumn = [k for k, v in configDict.items() if v == 1]
-    targetColumn = StringVar()
-    targetColumn = tColumn[0]
-    generateData(data, objectChoice, targetColumn, columns)
+    if tColumn == []:
+        is_column_selected = False
+        selectColumns(possibleColumns, data, objectChoice, columns, is_column_selected)
+    else:
+        targetColumn = StringVar()
+        targetColumn = tColumn[0]
+        clearMiddleFrame()
+        generateData(data, objectChoice, targetColumn, columns)
 
-def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice): #Function that creates config log and selects target column for EMAIL object
+def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns, columns, domainChoice, is_domain_empty, is_column_selected): #Function that creates config log and selects target column for EMAIL object
     configDict = {}
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
@@ -251,12 +503,17 @@ def createConfigLogEmail(data, objectChoice, columnV, columnWidgetYes, columnWid
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
     tColumn = [k for k, v in configDict.items() if v == 1]
-    targetColumn = StringVar()
-    targetColumn = tColumn[0]
-    generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
+    if tColumn == []:
+        is_column_selected = False
+        selectColumnsEmail(possibleColumns, data, objectChoice, columns, domainChoice, is_domain_empty, is_column_selected)
+    else:
+        targetColumn = StringVar()
+        targetColumn = tColumn[0]
+        clearMiddleFrame()
+        generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice)
 
 def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
-                    columns, streetChoice, frequencyChoice):  # Function that creates config log and selects target column for STREET ADDRESS object
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error):  # Function that creates config log and selects target column for STREET ADDRESS object
     configDict = {}
     for i in possibleColumns:
         configDict[i] = columnV[i].get()
@@ -265,9 +522,14 @@ def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWi
         columnNames[i].destroy()
         confirmColumnBTN.destroy()
     tColumn = [k for k, v in configDict.items() if v == 1]
-    targetColumn = StringVar()
-    targetColumn = tColumn[0]
-    generateDataStreet(data, objectChoice, targetColumn, columns, streetChoice, frequencyChoice)
+    if tColumn == []:
+        is_column_selected = False
+        selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoice, frequencyChoice, is_street_empty, frequency_error, is_column_selected)
+    else:
+        targetColumn = StringVar()
+        targetColumn = tColumn[0]
+        clearMiddleFrame()
+        generateDataStreet(data, objectChoice, targetColumn, columns, streetChoice, frequencyChoice)
 
 
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
@@ -278,13 +540,7 @@ def generateData(data, objectChoice, targetColumn, columns): #Function that read
     reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
     reorderBTN.pack()
-    if objectChoice.get() == "Street Address":
-        generateStreetAddress(data, targetColumn)
-        displayData(columns, data)
-    elif objectChoice.get() == "Email Address":
-        generateEmailAddress(data, targetColumn)
-        displayData(columns, data)
-    elif objectChoice.get() == "Phone Number":
+    if objectChoice.get() == "Phone Number":
         generatePhoneNumber(data, targetColumn)
         displayData(columns, data)
     else:
@@ -399,11 +655,6 @@ def openApplication(): #Function that opens the application
     global fileNameLabel                            #Makes the fileNameLabel a global variable so that it can be accessed in any Function
     global tv1                                      #Makes the treeview a global variable so that it can be accessed in any Function
     global topLabel
-
-    fileTypeChoice = StringVar()
-    fileTypeChoice.set("--Select a File Type--")
-
-    FILETYPEOPTIONS = [".CSV", ".DAT"]
 
     titleText = Label(root, text="Welcome to the Automated Data Scrambling Engine!") #Creates text that appears at top of application
     topWrapper = LabelFrame(root, text="Preview")                                    #Creates preview Section
