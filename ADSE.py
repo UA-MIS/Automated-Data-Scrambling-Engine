@@ -8,31 +8,13 @@ import faker as faker
 
 fake = faker.Faker()
 
-def fileType(fileTypeChoice): #Function that routes user to whichever file upload they selected
-    fileType = fileTypeChoice.get()
-    if fileType == ".CSV":
-        addCSVFile()
-    elif fileType == ".DAT":
-        delimChoice = StringVar()
-        delimEntryLabel = Label(bottomWrapper, text = "Please enter the delimiter your file uses:")
-        delimEntry = Entry(bottomWrapper, textvariable = delimChoice)
-        delimConfirmBTN = Button(bottomWrapper, text="Confirm Delimiter", command = lambda: addDATFile(delimChoice))
-        delimEntryLabel.pack()
-        delimEntry.pack()
-        delimConfirmBTN.pack()
-
-def addDATFile(delimChoice): #Function that allows user to upload other files with different delimiters
-    fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("all files", "*.*")))
-    data = pd.read_csv(fileName, header=0, sep=delimChoice.get())
-    fileNameLabel["text"] = fileName
-    clearBottomFrame()
-    readColumns(data)
-
-
-def addCSVFile(): #Function to open the filedialog and prompt the user to choose a CSV file to upload into the application
-    fileName = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSVs", "*.csv"), ("all files", "*.*")))
-    data = pd.read_csv(fileName, header=0)
-    fileNameLabel["text"] = fileName
+def add_file(delim_choice): #Function that allows user to upload other files with different delimiters
+    if delim_choice.get() == ',':
+        file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
+    else:
+        file_name = filedialog.askopenfilename(initialdir="/", title="Select File")
+    data = pd.read_csv(file_name, header=0, sep=delim_choice.get())
+    fileNameLabel["text"] = file_name
     clearBottomFrame()
     readColumns(data)
 
@@ -56,11 +38,12 @@ def readColumns(data): #Function to read columns from csv and create a list of t
 
 def displayData(columns, data): #Function that displays csv data in the preview
     clear_data()
+    data_without_NaN = data.replace(np.nan, '', regex=True)
     tv1["columns"] = columns
     tv1["show"] = "headings"
     for column in tv1["columns"]:
         tv1.heading(column, text=column)
-    df_rows = data.to_numpy().tolist()
+    df_rows = data_without_NaN.to_numpy().tolist()
     count = 0
     for row in df_rows:
         if count < 20:
@@ -343,7 +326,7 @@ def generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyCh
 
 def generate_streetaddress(streetChoice, frequencyChoice, i):
     x = str(i + 110)
-    return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented 
+    return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented
 
 def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
     domain = domainChoice.get()
@@ -379,7 +362,7 @@ def generate_phone_format_three(): #Actual Function that generates phone numbers
 
 def exportData(data): #Function that exports data as pipe delimited .dat file
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
-    data.to_csv(savePath, sep = "|", index = False)
+    data.to_csv(savePath, sep = "|", index = False, line_terminator='\n')
     print(savePath)
     if bool(savePath) == True:
         topLabel["text"] = "File succesfully exported."
@@ -429,10 +412,10 @@ def openApplication(): #Function that opens the application
     fileNameLabel = Label(bottomWrapper, text="No file selected")                    #Creates text for selected file name
     topLabel = Label(topWrapper, text="View preview of data here:")                  #Creates text for top label
     tv1 = ttk.Treeview(topWrapper)                                                   #Creates treeview for previewing data
-    fileTypeLabel = Label(bottomWrapper, text = "Please select the type of file you would like to upload")
-    fileTypeDropdown = OptionMenu(bottomWrapper, fileTypeChoice, *FILETYPEOPTIONS)
-    confirmFileTypeBTN = Button(bottomWrapper, text="Confirm File Type",      #Creates confirm file button
-    padx=10, pady=5, fg="white", bg="dark blue", command=lambda: fileType(fileTypeChoice))
+    delim_choice = StringVar()
+    delimEntryLabel = Label(bottomWrapper, text = "Please enter the delimiter your file uses:")
+    delimEntry = Entry(bottomWrapper, textvariable = delim_choice)
+    delimConfirmBTN = Button(bottomWrapper, text="Confirm Delimiter", command = lambda: add_file(delim_choice))
     treescrolly = Scrollbar(tv1, orient="vertical", command=tv1.yview)            #Updates the y-axis view of the widget
     treescrollx = Scrollbar(tv1, orient="horizontal", command=tv1.xview)          #Updates the x-axis view of the widget
     tv1.configure(xscrollcommand=treescrollx.set, yscrollcommand=treescrolly.set)    #Assigns the scrollbars to the Treeview
@@ -448,9 +431,9 @@ def openApplication(): #Function that opens the application
     tv1.pack(fill="both", expand="yes", padx=20, pady=20)            #Places treeview in topWrapper frame
     treescrollx.pack(side="bottom", fill="x")                        #Makes the scrollbar fill the x axis of the Treeview widget
     treescrolly.pack(side="right", fill="y")                         #Makes the scrollbar fill the y axis of the Treeview widget
-    fileTypeLabel.pack()
-    fileTypeDropdown.pack()
-    confirmFileTypeBTN.pack(expand = "true")                                #Places the Open File Button in bottomWrapper frame
+    delimEntryLabel.pack()
+    delimEntry.pack()
+    delimConfirmBTN.pack()
 
 
     root.title("Automated Data Scrambling Engine")  #Sets window title to the name of our project
