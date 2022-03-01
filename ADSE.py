@@ -1,8 +1,10 @@
+from fileinput import filename
 from pickle import EMPTY_LIST
 from tkinter import *
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import font
 import pandas as pd
 import numpy as np
 import faker as faker
@@ -11,7 +13,7 @@ fake = faker.Faker()
 
 def add_file(delim_choice): #Function that allows user to upload other files with different delimiters
     if delim_choice.get() == "":
-        clearBottomFrame()
+        clearBottomFrame2()
         global fileNameLabel
         fileNameLabel = Label(bottomWrapper, text="No file selected")
         fileNameLabel.pack()
@@ -23,16 +25,15 @@ def add_file(delim_choice): #Function that allows user to upload other files wit
         delimConfirmBTN = Button(bottomWrapper, text="Confirm Delimiter", command = lambda: add_file(delim_choice))
         delimEntryLabel.pack()
         delimEntry.pack()
-        delimConfirmBTN.pack()
+        delimConfirmBTN.pack(padx = 20, pady = 5)
     else:
         if delim_choice.get() == ',':
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File")
         data = pd.read_csv(file_name, header=0, sep=delim_choice.get())
-        print(file_name)
         fileNameLabel["text"] = file_name
-        clearBottomFrame()
+        
         readColumns(data)
 
 def clearTopFrame(): #Function that clears the top wrapper
@@ -43,14 +44,20 @@ def clearMiddleFrame(): #Function that clears the middle wrapper
     for widget in middleWrapper.winfo_children():
         widget.destroy()
 
-def clearBottomFrame(): #Function that clears the bottom wrapper
+def clearBottomFrame2(): #Function that clears the middle wrapper
     for widget in bottomWrapper.winfo_children():
         widget.destroy()
+
+def clearBottomFrame(): #Function that clears the bottom wrapper
+    for widget in bottomWrapper.winfo_children():
+        if widget.widgetName != "label" or widget["text"] == "Please enter the delimiter your file uses:" or widget["text"] == "No delimiter chosen.":
+            widget.destroy()
 
 def readColumns(data): #Function to read columns from csv and create a list of those columns
     columns = list
     columns = data.columns.values
     clearMiddleFrame()
+    clearBottomFrame()
     displayData(columns, data)
 
 def displayData(columns, data): #Function that displays csv data in the preview
@@ -420,6 +427,8 @@ def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoi
             columnWidgetNo = {}
             columnNames = {}
             clearMiddleFrame()
+            line1_address_label = tk.Label(middleWrapper, text="Please select the column that is address line 1")
+            line1_address_label.pack()
 
             for i in possibleColumns:
                 v = tk.IntVar()
@@ -453,6 +462,8 @@ def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoi
             clearMiddleFrame()
             no_column_selected_label = Label(middleWrapper, text = "No columns selected. Please select a column.", fg = "red")
             no_column_selected_label.pack()
+            line1_address_label = tk.Label(middleWrapper, text="Please select the column that is address line 1")
+            line1_address_label.pack()
 
             for i in possibleColumns:
                 v = tk.IntVar()
@@ -473,6 +484,69 @@ def selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoi
                                         command=lambda: createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes,
                                                                             columnWidgetNo, columnNames, possibleColumns,
                                                                             columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error))
+            confirmBTN.pack(expand="true")
+
+def selectColumnsStreetLine2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column):  # Function that creates radio buttons and allows user to select the column they want to affect for STREET ADDRESS object
+    if is_column2_selected == True:
+        columnV2 = {}
+        columnWidgetYes2 = {}
+        columnWidgetNo2 = {}
+        columnNames2 = {}
+        clearMiddleFrame()
+        line2_address_label = tk.Label(middleWrapper, text="Please select the column that is address line 2")
+        line2_address_label.pack()
+
+        for i in possibleColumns:
+            v2 = tk.IntVar()
+            v2.set(0)
+            columnName = tk.Label(middleWrapper, text="Column Name: " + i)
+            columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v2, value=1)
+            columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v2, value=0)
+            columnName.pack()
+            columnRadioYes.pack()
+            columnRadioNo.pack()
+            columnV2[i] = v2
+            columnWidgetYes2[i] = columnRadioYes
+            columnWidgetNo2[i] = columnRadioNo
+            columnNames2[i] = columnName
+        confirmColumnBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
+                                    bg="dark blue",
+                                    command=lambda: createConfigLogStreet2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column, columnV2, columnWidgetYes2, columnWidgetNo2, columnNames2))
+        confirmColumnBTN.pack(expand="true")
+    else:
+        if frequencyChoice.get() == "--Street Address Line 2 Frequency--":
+            frequency_error = True
+            displayStreetLineDropdown(possibleColumns, columns, data, objectChoice, streetChoice, is_street_empty, frequency_error)
+        else:
+            columnV2 = {}
+            columnWidgetYes2 = {}
+            columnWidgetNo2 = {}
+            columnNames2 = {}
+            clearMiddleFrame()
+            no_column_selected_label = Label(middleWrapper, text = "No columns selected. Please select a column.", fg = "red")
+            no_column_selected_label.pack()
+            line2_address_label = tk.Label(middleWrapper, text="Please select the column that is address line 2")
+            line2_address_label.pack()
+
+            for i in possibleColumns:
+                v2 = tk.IntVar()
+                v2.set(0)
+                columnName = tk.Label(middleWrapper, text="Column Name: " + i)
+                columnRadioYes = tk.Radiobutton(middleWrapper, text="Scramble this Column", variable=v2, value=1)
+                columnRadioNo = tk.Radiobutton(middleWrapper, text="Don't Scramble this Column", variable=v2, value=0)
+                columnName.pack()
+                columnRadioYes.pack()
+                columnRadioNo.pack()
+                columnV2[i] = v2
+                columnWidgetYes2[i] = columnRadioYes
+                columnWidgetNo2[i] = columnRadioNo
+                columnNames2[i] = columnName
+            confirmBTN = tk.Button(middleWrapper, text="Confirm configuration", padx=10, pady=5, fg="white",
+                                        bg="dark blue",
+                                        command=lambda: createConfigLogStreet2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column, columnV2, columnWidgetYes2, columnWidgetNo2, columnNames2))
             confirmBTN.pack(expand="true")
 
 
@@ -526,20 +600,42 @@ def createConfigLogStreet(data, objectChoice, columnV, columnWidgetYes, columnWi
         is_column_selected = False
         selectColumnsStreet(possibleColumns, data, objectChoice, columns, streetChoice, frequencyChoice, is_street_empty, frequency_error, is_column_selected)
     else:
-        targetColumn = StringVar()
-        targetColumn = tColumn[0]
+        line1Column = StringVar()
+        line1Column = tColumn[0]
         clearMiddleFrame()
-        generateDataStreet(data, objectChoice, targetColumn, columns, streetChoice, frequencyChoice)
+        is_column2_selected = True
+        selectColumnsStreetLine2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column)
+
+def createConfigLogStreet2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column, columnV2, columnWidgetYes2, columnWidgetNo2, columnNames2):  # Function that creates config log and selects target column for STREET ADDRESS object
+    configDict = {}
+    for i in possibleColumns:
+        configDict[i] = columnV2[i].get()
+        columnWidgetYes2[i].destroy()
+        columnWidgetNo2[i].destroy()
+        columnNames2[i].destroy()
+        confirmColumnBTN.destroy()
+    tColumn2 = [k for k, v in configDict.items() if v == 1]
+    if tColumn2 == []:
+        is_column2_selected = False
+        selectColumnsStreetLine2(data, objectChoice, columnV, columnWidgetYes, columnWidgetNo, columnNames, possibleColumns,
+                    columns, streetChoice, frequencyChoice, is_column_selected, is_street_empty, frequency_error, is_column2_selected, line1Column)
+    else:
+        line2Column = StringVar()
+        line2Column = tColumn2[0]
+        clearMiddleFrame()
+        generateDataStreet(data, objectChoice, line1Column, line2Column, columns, streetChoice, frequencyChoice)
 
 
 def generateData(data, objectChoice, targetColumn, columns): #Function that reads business object choice and directs data to corresponding generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
-    global reorderBTN
+    # global reorderBTN
     exportBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-    reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
+    # reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
-    reorderBTN.pack()
+    # reorderBTN.pack()
     if objectChoice.get() == "Phone Number":
         generatePhoneNumber(data, targetColumn)
         displayData(columns, data)
@@ -550,39 +646,61 @@ def generateData(data, objectChoice, targetColumn, columns): #Function that read
 def generateDataEmail(data, objectChoice, targetColumn, columns, domainChoice): #Function that directs data to email generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
-    global reorderBTN
+    # global reorderBTN
     exportBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-    reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
+    # reorderBTN = Button(bottomWrapper, text = "Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
-    reorderBTN.pack()
+    # reorderBTN.pack()
    
     generateEmailAddress(data, targetColumn, domainChoice)
     displayData(columns, data)
 
-def generateDataStreet(data, objectChoice, targetColumn,
-                 columns, streetChoice, frequencyChoice):  # Function that directs data to street address generate function
+def generateDataStreet(data, objectChoice, line1Column, line2Column, columns, streetChoice, frequencyChoice):  # Function that directs data to street address generate function
     topLabel["text"] = "Data has been updated. You can export by clicking the 'Export Data' button below"
     global exportBTN
-    global reorderBTN
+    # global reorderBTN
     exportBTN = tk.Button(bottomWrapper, text="Export Data", padx=10, pady=5, fg="white", bg="dark blue",
                           command=lambda: exportData(data))
-    reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
-                           command=lambda: reorderColumns(data, targetColumn))
+    # reorderBTN = tk.Button(bottomWrapper, text="Reorder Columns", padx=10, pady=5, fg="white", bg="dark blue",
+    #                        command=lambda: reorderColumns(data, targetColumn))
     exportBTN.pack()
-    reorderBTN.pack()
+    # reorderBTN.pack()
 
-    generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice)
+    generateStreetAddress(data, columns, line1Column, line2Column, streetChoice, frequencyChoice)
     displayData(columns, data)
    
 
-def generateStreetAddress(data, columns, targetColumn, streetChoice, frequencyChoice):  # Function that generates street addresses
+def generateStreetAddress(data, columns, line1Column, line2Column, streetChoice, frequencyChoice):  # Function that generates street addresses
+
     for i in data.index:
-        data.at[i, targetColumn] = generate_streetaddress(streetChoice, frequencyChoice, i)
+        data.at[i, line1Column] = generate_streetaddress(streetChoice, frequencyChoice, i)
+        if frequencyChoice.get() == "10":
+            frequency = 10
+            print(i % frequency)
+            if i % frequency == 0:
+                data.at[i, line2Column] = generate_streetaddress_line2(frequencyChoice, i)
+        elif frequencyChoice.get() == "20":
+            frequency = 20
+            if i % frequency == 0:
+                data.at[i, line2Column] = generate_streetaddress_line2(frequencyChoice, i)
+        elif frequencyChoice.get() == "50":
+            frequency = 50
+            if i % frequency == 0:
+                data.at[i, line2Column] = generate_streetaddress_line2(frequencyChoice, i)
+        else:
+            frequency = 100
+            if i % frequency == 0:
+                data.at[i, line2Column] = generate_streetaddress_line2(frequencyChoice, i)
        
 
 def generate_streetaddress(streetChoice, frequencyChoice, i):
     x = str(i + 110)
     return x + " " + streetChoice.get()         #for each piece of data, create an address with their street name and incremented
+
+def generate_streetaddress_line2(frequencyChoice,
+                                 i):  # this method will generate the line 2 data in the column if divisible by the frequency choice
+    x = str(i + 11)
+    return "Unit " + x
 
 def generateEmailAddress(data, targetColumn, domainChoice):            #Function that generates email addresses
     domain = domainChoice.get()
@@ -626,28 +744,30 @@ def exportData(data): #Function that exports data as pipe delimited .dat file
         topLabel["text"] = "File failed to export."
 
 
-def reorderColumns(data, targetColumn): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
-    if targetColumn == "PhoneNumber":
-        correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber", "PhoneType"]
-        data = data[correctOrder]
-        topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
-        readColumns(data)
-        exportBTN.destroy()
-        reorderBTN.destroy()
-        exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-        exporttBTN.pack()
-    else:
-        correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber"]
-        data = data[correctOrder]
-        topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
-        readColumns(data)
-        exportBTN.destroy()
-        reorderBTN.destroy()
-        exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
-        exporttBTN.pack()
+# def reorderColumns(data, targetColumn): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
+#     if targetColumn == "PhoneNumber":
+#         correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber", "PhoneType"]
+#         data = data[correctOrder]
+#         topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
+#         readColumns(data)
+#         exportBTN.destroy()
+#         reorderBTN.destroy()
+#         exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+#         exporttBTN.pack()
+#     else:
+#         correctOrder = [targetColumn, "SourceSystemOwner", "SourceSystemID", "DateFrom", "DateTo", "PrimaryFlag", "PersonNumber"]
+#         data = data[correctOrder]
+#         topLabel["text"] = "Columns have been reordered. You can export by clicking the 'Export Data' button below"
+#         readColumns(data)
+#         exportBTN.destroy()
+#         reorderBTN.destroy()
+#         exporttBTN = Button(bottomWrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: exportData(data))
+#         exporttBTN.pack()
 
 def openApplication(): #Function that opens the application
     root = Tk()                                     #initializes the window and names it "root"
+    title_font = ("Calibri", 20, "bold")
+    small_font = ("Calibri", 10, "bold")
 
     global topWrapper                               #Makes the topWrapper a global variable so that it can be accessed in any Function
     global middleWrapper                            #Makes the middleWrapper a global variable so that it can be accessed in any Function
@@ -655,13 +775,16 @@ def openApplication(): #Function that opens the application
     global fileNameLabel                            #Makes the fileNameLabel a global variable so that it can be accessed in any Function
     global tv1                                      #Makes the treeview a global variable so that it can be accessed in any Function
     global topLabel
+    global delimEntryLabel
+    global delimEntry
+    global delimConfirmBTN
 
-    titleText = Label(root, text="Welcome to the Automated Data Scrambling Engine!") #Creates text that appears at top of application
+    titleText = Label(root, text="Welcome to the Automated Data Scrambling Engine!", font=title_font) #Creates text that appears at top of application
     topWrapper = LabelFrame(root, text="Preview")                                    #Creates preview Section
     middleWrapper = LabelFrame(root, text="Configuration")                           #Creates configure Section
     bottomWrapper = LabelFrame(root, text="Current File")                            #Creates select File section
-    fileNameLabel = Label(bottomWrapper, text="No file selected")                    #Creates text for selected file name
-    topLabel = Label(topWrapper, text="View preview of data here:")                  #Creates text for top label
+    fileNameLabel = Label(bottomWrapper, text="No file selected", name = "file_name_label")                    #Creates text for selected file name
+    topLabel = Label(topWrapper, text="View preview of data here:", font=small_font)                  #Creates text for top label
     tv1 = ttk.Treeview(topWrapper)                                                   #Creates treeview for previewing data
     delim_choice = StringVar()
     delimEntryLabel = Label(bottomWrapper, text = "Please enter the delimiter your file uses:")
@@ -673,10 +796,10 @@ def openApplication(): #Function that opens the application
    
    
 
-    titleText.pack(fill="both", expand="yes", padx=20, pady=20)      #Places title text widget in window
+    titleText.pack(padx=5, pady=5)      #Places title text widget in window
     topWrapper.pack(fill="both", expand="yes", padx=20, pady=20)     #Places topWrapper label frame in window
     middleWrapper.pack(fill="both", expand="yes", padx=20, pady=20)  #Places middleWrapper label frame in window
-    bottomWrapper.pack(fill="both", expand="yes", padx=20, pady=20)  #Places bottomWrapper label frame in window
+    bottomWrapper.pack(fill="x", padx=20, pady=20)  #Places bottomWrapper label frame in window
     fileNameLabel.pack()                                             #Places fileName Label in bottomWrapper frame
     topLabel.pack()                                                  #Places top label in top wrapper frame          
     tv1.pack(fill="both", expand="yes", padx=20, pady=20)            #Places treeview in topWrapper frame
@@ -684,7 +807,8 @@ def openApplication(): #Function that opens the application
     treescrolly.pack(side="right", fill="y")                         #Makes the scrollbar fill the y axis of the Treeview widget
     delimEntryLabel.pack()
     delimEntry.pack()
-    delimConfirmBTN.pack()
+    delimConfirmBTN.pack(padx = 20, pady = 5)
+    print(fileNameLabel.winfo_name)
 
 
     root.title("Automated Data Scrambling Engine")  #Sets window title to the name of our project
