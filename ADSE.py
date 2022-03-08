@@ -118,8 +118,8 @@ def add_file(delim_choice): #Function that allows user to upload files with diff
     else:
         if delim_choice.get() == ',':
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
-            file_extension = file_name.split(".")[1]
-            if file_extension != "csv" and file_extension != "txt" and file_extension != "dat":
+            file_extension = os.path.splitext(file_name)[1]
+            if file_extension != ".csv" and file_extension != ".txt" and file_extension != ".dat":
                 clear_bottom_frame_except_filenamelabel()
                 not_acceptable_label = Label(bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 not_acceptable_label.pack()
@@ -127,8 +127,8 @@ def add_file(delim_choice): #Function that allows user to upload files with diff
                 chooseCorrectFileBTN.pack(expand="true")
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("TXT", "*.txt"), ("all files", "*.*")))
-            file_extension = file_name.split(".")[1]
-            if file_extension != "txt" and file_extension != "dat":
+            file_extension = os.path.splitext(file_name)[1]
+            if file_extension != ".txt" and file_extension != ".dat":
                 clear_bottom_frame_except_filenamelabel()
                 not_acceptable_label = Label(bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red", padx=5, pady=5)
                 not_acceptable_label.pack()
@@ -148,9 +148,10 @@ def read_columns(data): #Function to read columns from csv and create a list of 
 def export_data(object): #Function that exports data as pipe delimited .dat file
     savePath = filedialog.asksaveasfile(mode='w', defaultextension=".dat")
     object.data.to_csv(savePath, sep = "|", index = False, line_terminator='\n')
+    savePath.flush()
     print(savePath)
     if bool(savePath) == True:
-        top_label["text"] = "File succesfully exported. Use the 'Convert Exported Data to ZIP' button below."
+        top_label["text"] = "File succesfully exported. Use the 'Convert Exported Data to ZIP' button below to zip your data."
     else:
         top_label["text"] = "File failed to export."
     clear_bottom_frame()
@@ -166,6 +167,10 @@ def export_zip(name_path):                                    #function to expor
     zipFile = zipfile.ZipFile(os.path.basename(the_path) + ".zip", 'w')
     zipFile.write(path, compress_type=zipfile.ZIP_DEFLATED)         #this is the type of zip written, and can be changed if need be
     zipFile.close()
+    if bool(savePath) == True:
+        top_label["text"] = "File succesfully zipped. Your zipped data is located in the same location you have this app."
+    else:
+        top_label["text"] = "File failed to export."
 
 def reorder_columns(object): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
     if object.object_choice == "Street Address":
@@ -374,10 +379,10 @@ def set_street_address(object, street_choice):
 def select_frequency(object):  # Function that displays the dropdown to choose the street line 2 frequency
     if object.frequency_error == False:
         clear_middle_frame()
-        FREQUENCY_OPTIONS = ["10", "20", "50", "100"]
+        FREQUENCY_OPTIONS = ["1/10", "1/20", "1/50", "1/100"]
         frequency_choice = tk.StringVar()
         frequency_choice.set("--Street Address Line 2 Frequency--")
-        frequency_label = tk.Label(middle_wrapper, text="Select the frequency of which you want :")
+        frequency_label = tk.Label(middle_wrapper, text="Select how frequent you want to generate address line 2:")
         frequency_dropdown = tk.OptionMenu(middle_wrapper, frequency_choice, *FREQUENCY_OPTIONS)
         frequency_label.pack()
         frequency_dropdown.pack()
@@ -386,7 +391,7 @@ def select_frequency(object):  # Function that displays the dropdown to choose t
         confirm_street_btn.pack(expand="true")
     else:
         clear_middle_frame()
-        FREQUENCY_OPTIONS = ["10", "20", "50", "100"]
+        FREQUENCY_OPTIONS = ["1/10", "1/20", "1/50", "1/100"]
         frequency_choice = tk.StringVar()
         frequency_error_label = Label(middle_wrapper, text = "No frequency selected. Please select a frequency.", fg = "red")
         frequency_error_label.pack()
@@ -446,7 +451,7 @@ def generate_name(object): #function that calls the method generates within the 
         object.data.at[i, object.target_lastname_column] = return_lastname()
 
 def generate_salary(object):
-    for i in object.data.index[0:-1]:
+    for i in object.data.index:
         if i % 2 == 0:
             object.data.at[i, object.target_column] = return_5fig_salary()
         else:
@@ -467,16 +472,16 @@ def return_lastname(): #returning a fake last name
 def generate_street_address(object):  # Function that generates street addresses
     for i in object.data.index:
         object.data.at[i, object.target_column_1] = return_streetaddress(object.street, i)
-        if object.frequency == "10":
+        if object.frequency == "1/10":
             frequency = 10
             print(i % frequency)
             if i % frequency == 0:
                 object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "20":
+        elif object.frequency == "1/20":
             frequency = 20
             if i % frequency == 0:
                 object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "50":
+        elif object.frequency == "1/50":
             frequency = 50
             if i % frequency == 0:
                 object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
@@ -494,13 +499,13 @@ def return_streetaddress_line2(i):  # this method will generate the line 2 data 
     return "Unit " + x
 
 def generate_phone_number(object):             #Function that generates phone numbers
-    for i in object.data.index[0:-1]:
+    for i in object.data.index:
         if i % 1 == 0:
             object.data.at[i, object.target_column] = return_phone_normal_format() #normal format
-    for i in object.data.index[0:-1]:
+    for i in object.data.index:
         if i % 3 == 1:
             object.data.at[i, object.target_column] = return_phone_format_2() #different format
-    for i in object.data.index[0:-1]:
+    for i in object.data.index:
         if i % 5 == 1:
             object.data.at[i, object.target_column] = return_phone_format_3() #different format
    
