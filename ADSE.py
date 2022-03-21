@@ -51,16 +51,23 @@ def create_columns(object, self):
         object.data["PersonEmail"] = "PersonEmail"
         print(object.data)
         route_configuration(object, self)
-    elif object.object_choice == "Name": #creating the name columns
+    elif object.object_choice == "Name":
         object.data["METADATA"] = "MERGE"
         object.data["PersonName"] = "PersonName"
         object.data["FirstName"] = ""
         object.data["LastName"] = ""
         route_configuration(object, self)
-    elif object.object_choice == "Salary": #creating the name columns
+    elif object.object_choice == "Salary":
         object.data["METADATA"] = "MERGE"
         object.data["PersonSalary"] = "PersonSalary"
         object.data["Salary"] = ""
+        route_configuration(object, self)
+    elif object.object_choice == "Emergency Contact Name":
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactName"] = ""
+        object.data["ExampleField"] = "EXAMPLE"
+        object.data["EmergencyContactFirstName"] = ""
+        object.data["EmergencyContactLastName"] = ""
         route_configuration(object, self)
 
 def route_configuration(object, self):
@@ -100,6 +107,11 @@ def set_target_column(object, self):
     elif object.object_choice == "Salary": #setting the target firstname and lastname columns
         clear_middle_frame(self)
         setattr(object, "target_column", "Salary")
+        generate_data(object, self)
+    elif object.object_choice == "Emergency Contact Name":  # setting the target firstname and lastname columns
+        clear_middle_frame(self)
+        setattr(object, "target_contact_firstname_column", "EmergencyContactFirstName")
+        setattr(object, "target_contact_lastname_column", "EmergencyContactLastName")
         generate_data(object, self)
 
 #=================================FILE OPERATIONS===================================#
@@ -437,6 +449,10 @@ def generate_data(object, self): #Function that reads business object choice and
         generate_salary(object)
         reorder_columns(object)
         display_data(object, self)
+    elif object.object_choice == "Emergency Contact Name":
+        generate_contact_name(object)
+        reorder_columns(object)
+        display_data(object, self)
 
 def generate_email_address(object):            #Function that generates email addresses
     object.data[object.target_column] = object.data[object.target_column].apply(lambda x: x.split("@")[0] + "@" + object.domain)
@@ -452,6 +468,11 @@ def generate_salary(object):
             object.data.at[i, object.target_column] = return_5fig_salary()
         else:
             object.data.at[i, object.target_column] = return_6fig_salary()
+
+def generate_contact_name(object): #function that calls the method generates within the target column for emergency contact
+    for i in object.data.index:
+        object.data.at[i, object.target_contact_firstname_column] = return_firstname()
+        object.data.at[i, object.target_contact_lastname_column] = return_lastname()
 
 def return_5fig_salary():
     return fake.numerify("$9#,###")
