@@ -62,12 +62,23 @@ def create_columns(object, self):
         object.data["PersonSalary"] = "PersonSalary"
         object.data["Salary"] = ""
         route_configuration(object, self)
-    elif object.object_choice == "Emergency Contact Name":
+    elif object.object_choice == "Emergency Contact Name": #adding in emergency contact methods to the pre-existing methods
         object.data["METADATA"] = "MERGE"
         object.data["ContactName"] = ""
         object.data["ExampleField"] = "EXAMPLE"
         object.data["EmergencyContactFirstName"] = ""
         object.data["EmergencyContactLastName"] = ""
+        route_configuration(object, self)
+    elif object.object_choice == "Emergency Contact Phone Number":
+        object.data["PhoneNumber"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactPhone"] = "ContactPhone"
+        route_configuration(object, self)
+    elif object.object_choice == "Emergency Contact Street Address":
+        object.data["AddressLine1"] = ""
+        object.data["AddressLine2"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["PersonAddress"] = "PersonAddress"
         route_configuration(object, self)
 
 def route_configuration(object, self):
@@ -108,11 +119,9 @@ def set_target_column(object, self):
         clear_middle_frame(self)
         setattr(object, "target_column", "Salary")
         generate_data(object, self)
-    elif object.object_choice == "Emergency Contact Name":  # setting the target firstname and lastname columns
-        clear_middle_frame(self)
-        setattr(object, "target_contact_firstname_column", "EmergencyContactFirstName")
-        setattr(object, "target_contact_lastname_column", "EmergencyContactLastName")
-        generate_data(object, self)
+    elif object.object_choice == "Emergency Contact":
+        set_target_emergency_contact_column(object, self) #calling the emergency contact target column method
+
 
 #=================================FILE OPERATIONS===================================#
 def add_file(self): #Function that allows user to upload files with different delimiters
@@ -201,6 +210,15 @@ def reorder_columns(object): # Function that reorders columns based on what they
         object.data = object.data[correct_order]
     elif object.object_choice == "Name":
         correct_order = ["METADATA", "PersonName", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Name":
+        correct_order = ["METADATA", "ContactName", "SourceSystemID", "SourceSystemOwner", "ExampleField", "NameType", "FirstName", "LastName"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Phone Number":
+        correct_order = ["METADATA", "PersonPhone", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
+        object.data = object.data[correct_order]
+    if object.object_choice == "Emergency Contact Street Address":
+        correct_order = ["METADATA", "PersonAddress", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
         object.data = object.data[correct_order]
 
 #=================================UI OPERATIONS===================================#
@@ -297,7 +315,7 @@ def clear_data(self): #Function that clears the preview so that it can be repopu
     self.tv1.delete(*self.tv1.get_children())
 
 def display_dropdown(object, self): #Function that displays the dropdown to choose the business object
-    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary"]
+    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Emergency Contact"]
     objectChoice = StringVar()
     objectChoice.set("--Business Object--")
     self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
@@ -308,7 +326,7 @@ def display_dropdown(object, self): #Function that displays the dropdown to choo
     self.confirmObjectBTN.pack()
 
 def display_original_dropdown(columns, data, self): #Function that displays the dropdown to choose the business object
-    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary"]
+    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Emergency Contact"]
     objectChoice = StringVar()
     objectChoice.set("--Business Object--")
     self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
@@ -420,6 +438,44 @@ def set_frequency(object, frequency_choice, self):
         setattr(object, "frequency", frequency_choice.get())
         set_target_column(object, self)
 
+#=================================EMERGENCY CONTACT CONFIGURATION===================================#
+def display_emergency_contact_dropdown(object, self): #Function that displays the dropdown to choose the emergency contact business object
+    EMERGENCYCONTACTOBJECTS = ["Name", "Phone Number" "Street Address"]
+    objectChoice = StringVar()
+    objectChoice.set("--Emergency Contact Business Object--")
+    self.dropdownLabel = Label(self.middle_wrapper, text="Select the Emergency Contact Business Object that corresponds with your file:")
+    self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *EMERGENCYCONTACTOBJECTS)
+    self.dropdownLabel.pack()
+    self.objectDropdown.pack()
+    self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: route_emergency_contact_configuration(object, self))
+    self.confirmObjectBTN.pack()
+
+def route_emergency_contact_configuration(object, self):
+    if object.object_choice == "Street Address":
+        setattr(object, "is_street_empty", False)
+        select_street_address(object, self)
+    elif object.object_choice == "Email Address":
+        setattr(object, "domain", "")
+        setattr(object, "is_domain_empty", False)
+        select_domain(object, self)
+    else: #routing to the target column for the name choice
+        set_target_column(object, self)
+
+def set_target_emergency_contact_column(object, self):
+    if object.object_choice == "Emergency Contact Name":  # setting the target firstname and lastname columns
+        clear_middle_frame(self)
+        setattr(object, "target_contact_firstname_column", "EmergencyContactFirstName")
+        setattr(object, "target_contact_lastname_column", "EmergencyContactLastName")
+        generate_data(object, self)
+    elif object.object_choice == "Emergency Contact Street Address":
+        clear_middle_frame(self)
+        setattr(object, "target_contact_column_1", "EmergencyContactAddressLine1")
+        setattr(object, "target_contact_column_2", "EmergencyContactAddressLine2")
+    elif object.object_choice == "Emergency Contact Phone Number":
+        clear_middle_frame(self)
+        setattr(object, "target_contact_phone_column", "EmergencyContactPhoneNumber")
+        generate_data(object, self)
+
 #=================================ENGINE FUNCTIONS===================================#        
 def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function
     self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below"
@@ -453,6 +509,14 @@ def generate_data(object, self): #Function that reads business object choice and
         generate_contact_name(object)
         reorder_columns(object)
         display_data(object, self)
+    elif object.object_choice == "Emergency Contact Phone Number":
+        generate_contact_phone_number(object)
+        reorder_columns(object)
+        display_data(object, self)
+    elif object.object_choice == "Emergency Contact Street Address":
+        generate_contact_street_address(object)
+        reorder_columns(object)
+        display_data(object, self)
 
 def generate_email_address(object):            #Function that generates email addresses
     object.data[object.target_column] = object.data[object.target_column].apply(lambda x: x.split("@")[0] + "@" + object.domain)
@@ -469,10 +533,55 @@ def generate_salary(object):
         else:
             object.data.at[i, object.target_column] = return_6fig_salary()
 
+#Emergency Contact generate methods
 def generate_contact_name(object): #function that calls the method generates within the target column for emergency contact
     for i in object.data.index:
         object.data.at[i, object.target_contact_firstname_column] = return_firstname()
         object.data.at[i, object.target_contact_lastname_column] = return_lastname()
+
+#adding in the generation method for emergency contact phone number
+def generate_contact_phone_number(object):
+    for i in object.data.index:
+        if i % 1 == 0:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_normal_format() #normal format
+    for i in object.data.index:
+        if i % 3 == 1:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_format_2() #different format
+    for i in object.data.index:
+        if i % 5 == 1:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_format_3() #different format
+
+#adding in the generation method for emergency contact street address
+def generate_contact_street_address(object):
+    for i in object.data.index:
+        object.data.at[i, object.target_contact_column_1] = return_contact_streetaddress(object.street, i)
+        if object.frequency == "1/10":
+            frequency = 10
+            print(i % frequency)
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        elif object.frequency == "1/20":
+            frequency = 20
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        elif object.frequency == "1/50":
+            frequency = 50
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        else:
+            frequency = 100
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+# return the emergency contact street addresses line 1 and 2
+
+def return_contact_streetaddress(street_choice, i):
+    x = str(i + 110)
+    return x + " " + street_choice  # for each piece of data, create an address with their street name and incremented
+
+
+def return_contact_streetaddress_line2(i):  # this method will generate the line 2 data in the column if divisible by the frequency choice
+    x = str(i + 11)
+    return "Unit " + x
 
 def return_5fig_salary():
     return fake.numerify("$9#,###")
