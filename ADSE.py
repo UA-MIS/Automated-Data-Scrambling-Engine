@@ -11,6 +11,7 @@ import numpy as np
 import faker as faker
 import zipfile
 import os.path
+import random
 
 #=================================INITIALIZE FAKER===================================#
 fake = faker.Faker()
@@ -27,7 +28,10 @@ class BusinessObject:
 
 def create_object(columns, data, objectChoice, prior_error, self):
     object = BusinessObject(data, columns, objectChoice.get(), prior_error)
-    create_columns(object, self)
+    if object.object_choice == "Emergency Contact":
+        display_emergency_contact_dropdown(object, self)
+    else:
+        create_columns(object, self)
 
 def create_columns(object, self):
     if object.object_choice == "Street Address":
@@ -59,15 +63,12 @@ def create_columns(object, self):
         route_configuration(object, self)
     elif object.object_choice == "Salary":
         object.data["METADATA"] = "MERGE"
-        object.data["PersonSalary"] = "PersonSalary"
-        object.data["Salary"] = ""
+        object.data["Salary"] = "Salary"
+        object.data["SalaryAmount"] = ""
         route_configuration(object, self)
-    elif object.object_choice == "Emergency Contact Name":
+    elif object.object_choice == "Username":
         object.data["METADATA"] = "MERGE"
-        object.data["ContactName"] = ""
-        object.data["ExampleField"] = "EXAMPLE"
-        object.data["EmergencyContactFirstName"] = ""
-        object.data["EmergencyContactLastName"] = ""
+        object.data["User"] = "User"
         route_configuration(object, self)
 
 def route_configuration(object, self):
@@ -78,41 +79,42 @@ def route_configuration(object, self):
         setattr(object, "domain", "")
         setattr(object, "is_domain_empty", False)
         select_domain(object, self)
-    else: #routing to the target column for the name choice
+    elif object.object_choice == "Username":
+        setattr(object, "username", "")
+        setattr(object, "is_username_empty", False)
+        select_username(object, self)
+    else:
         set_target_column(object, self)
 
 def set_target_column(object, self):
+    clear_middle_frame(self)
     if object.object_choice == "Street Address":
-        clear_middle_frame(self)
         setattr(object, "target_column_1", "AddressLine1")
         setattr(object, "target_column_2", "AddressLine2")
-        generate_data(object, self)
     elif object.object_choice == "Phone Number":
-        clear_middle_frame(self)
         setattr(object, "target_column", "PhoneNumber")
-        generate_data(object, self)
     elif object.object_choice == "National Identifier":
-        clear_middle_frame(self)
         setattr(object, "target_column", "NationalIdentifier")
-        generate_data(object, self)
     elif object.object_choice == "Email Address":
-        clear_middle_frame(self)
         setattr(object, "target_column", "EmailAddress")
-        generate_data(object, self)
     elif object.object_choice == "Name": #setting the target firstname and lastname columns
-        clear_middle_frame(self)
         setattr(object, "target_firstname_column", "FirstName")
         setattr(object, "target_lastname_column", "LastName")
-        generate_data(object, self)
     elif object.object_choice == "Salary": #setting the target firstname and lastname columns
-        clear_middle_frame(self)
-        setattr(object, "target_column", "Salary")
-        generate_data(object, self)
+        setattr(object, "target_column", "SalaryAmount")
+    elif object.object_choice == "Username":
+        setattr(object, "target_username_column", "Username")
     elif object.object_choice == "Emergency Contact Name":  # setting the target firstname and lastname columns
-        clear_middle_frame(self)
-        setattr(object, "target_contact_firstname_column", "EmergencyContactFirstName")
-        setattr(object, "target_contact_lastname_column", "EmergencyContactLastName")
-        generate_data(object, self)
+        setattr(object, "target_contact_firstname_column", "FirstName")
+        setattr(object, "target_contact_lastname_column", "LastName")
+    elif object.object_choice == "Emergency Contact Street Address":
+        setattr(object, "target_contact_column_1", "AddressLine1")
+        setattr(object, "target_contact_column_2", "AddressLine2")
+    elif object.object_choice == "Emergency Contact Phone Number":
+        setattr(object, "target_contact_phone_column", "PhoneNumber")
+    elif object.object_choice == "Emergency Contact Email Address":
+        setattr(object, "target_column", "EmailAddress")
+    generate_data(object, self)
 
 #=================================FILE OPERATIONS===================================#
 def add_file(self): #Function that allows user to upload files with different delimiters
@@ -201,6 +203,24 @@ def reorder_columns(object): # Function that reorders columns based on what they
         object.data = object.data[correct_order]
     elif object.object_choice == "Name":
         correct_order = ["METADATA", "PersonName", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Salary":
+        correct_order = ["METADATA", "Salary", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "SalaryBasisName", "SalaryAmount"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Username":
+        correct_order = ["METADATA", "User", "SourceSystemID", "SourceSystemOwner", "Username"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Name":
+        correct_order = ["METADATA", "ContactName", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Phone Number":
+        correct_order = ["METADATA", "ContactPhone", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Street Address":
+        correct_order = ["METADATA", "ContactAddress", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
+        object.data = object.data[correct_order]
+    elif object.object_choice == "Emergency Contact Email Address":
+        correct_order = ["METADATA", "ContactEmail", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "EmailType", "PrimaryFlag", "EmailAddress"]
         object.data = object.data[correct_order]
 
 #=================================UI OPERATIONS===================================#
@@ -297,7 +317,7 @@ def clear_data(self): #Function that clears the preview so that it can be repopu
     self.tv1.delete(*self.tv1.get_children())
 
 def display_dropdown(object, self): #Function that displays the dropdown to choose the business object
-    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary"]
+    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Username", "Emergency Contact"]
     objectChoice = StringVar()
     objectChoice.set("--Business Object--")
     self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
@@ -308,7 +328,7 @@ def display_dropdown(object, self): #Function that displays the dropdown to choo
     self.confirmObjectBTN.pack()
 
 def display_original_dropdown(columns, data, self): #Function that displays the dropdown to choose the business object
-    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary"]
+    BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Username", "Emergency Contact"]
     objectChoice = StringVar()
     objectChoice.set("--Business Object--")
     self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
@@ -318,6 +338,54 @@ def display_original_dropdown(columns, data, self): #Function that displays the 
     prior_error = False
     self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: create_object(columns, data, objectChoice, prior_error, self))
     self.confirmObjectBTN.pack()
+
+#=================================EMERGENCY CONTACT CONFIGURATION===================================#
+def display_emergency_contact_dropdown(object, self): #Function that displays the dropdown to choose the emergency contact business object
+    clear_middle_frame(self)
+    EMERGENCYCONTACTOBJECTS = ["Emergency Contact Name", "Emergency Contact Phone Number", "Emergency Contact Street Address", "Emergency Contact Email Address"]
+    contactObjectChoice = StringVar()
+    contactObjectChoice.set("--Emergency Contact Business Object--")
+    self.contactDropdownLabel = Label(self.middle_wrapper, text="Select the Emergency Contact Business Object that corresponds with your file:")
+    self.contactObjectDropdown = OptionMenu(self.middle_wrapper, contactObjectChoice, *EMERGENCYCONTACTOBJECTS)
+    self.contactDropdownLabel.pack()
+    self.contactObjectDropdown.pack()
+    self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_emergency_contact_object(object, self, contactObjectChoice))
+    self.confirmContactObjectBTN.pack()
+
+def set_emergency_contact_object(object, self, contact_object_choice):
+    setattr(object, "object_choice", contact_object_choice.get())
+    create_emergency_contact_columns(object, self)
+
+def create_emergency_contact_columns(object, self):
+    if object.object_choice == "Emergency Contact Name":  # adding in emergency contact methods to the pre-existing methods
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactName"] = "ContactName"
+        object.data["FirstName"] = ""
+        object.data["LastName"] = ""
+    elif object.object_choice == "Emergency Contact Phone Number":
+        object.data["PhoneNumber"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactPhone"] = "ContactPhone"
+    elif object.object_choice == "Emergency Contact Street Address":
+        object.data["AddressLine1"] = ""
+        object.data["AddressLine2"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactAddress"] = "ContactAddress"
+    elif object.object_choice == "Emergency Contact Email Address":
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactEmail"] = "ContactEmail"
+    route_emergency_contact_configuration(object, self)
+
+def route_emergency_contact_configuration(object, self):
+    if object.object_choice == "Emergency Contact Street Address":
+        setattr(object, "is_street_empty", False)
+        select_street_address(object, self)
+    elif object.object_choice == "Emergency Contact Email Address":
+        setattr(object, "domain", "")
+        setattr(object, "is_domain_empty", False)
+        select_domain(object, self)
+    else:
+        set_target_column(object, self)
 
 #=================================EMAIL ADDRESS CONFIGURATION===================================#
 def select_domain(object, self): #Function that prompts user to enter a domain for generated email addresses
@@ -348,7 +416,64 @@ def set_domain(object, domain_choice, self):
         select_domain(object, self)
     else:
         setattr(object, "domain", domain_choice.get())
+        confirm_domain(object, self)
+
+def confirm_domain(object, self):
+    clear_middle_frame(self)
+    self.domain_label = Label(self.middle_wrapper, text = f"You entered '{object.domain}' as the domain. Please confirm choice or go back.", padx=10, pady=5,)
+    self.confirm_domain_choice_button = Button(self.middle_wrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_target_column(object, self))
+    self.redo_domain_button = Button(self.middle_wrapper, text="Edit Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_domain(object, self))
+    self.domain_label.pack()
+    self.confirm_domain_choice_button.pack()
+    self.redo_domain_button.pack()
+
+def redo_domain(object, self):
+    delattr(object, "domain")
+    select_domain(object, self)
+
+#=================================USERNAME CONFIGURATION===================================#
+def select_username(object, self): #Function that prompts user to enter a username generated usernames
+    if object.is_username_empty == False:
+        clear_middle_frame(self)
+        username_choice = StringVar()
+        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the username you want to use for generated data:")
+        self.username_entry = Entry(self.middle_wrapper, textvariable = username_choice)
+        self.confirm_username_btn = Button(self.middle_wrapper, text="Confirm Username", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_username(object, username_choice, self))
+        self.username_entry_label.pack()
+        self.username_entry.pack()
+        self.confirm_username_btn.pack()
+    else:
+        clear_middle_frame(self)
+        self.empty_username_label = Label(self.middle_wrapper, text = "The username is empty. Please enter a username.", fg = "red")
+        self.empty_username_label.pack()
+        username_choice = StringVar()
+        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the username you want to use for generated data:")
+        self.username_entry = Entry(self.middle_wrapper, textvariable = username_choice)
+        self.confirm_username_btn = Button(self.middle_wrapper, text="Confirm Username", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_username(object, username_choice, self))
+        self.username_entry_label.pack()
+        self.username_entry.pack()
+        self.confirm_username_btn.pack()
+
+def set_username(object, username_choice, self):
+    if username_choice.get() == "":
+        object.is_username_empty = True
+        select_username(object, self)
+    else:
+        setattr(object, "username", username_choice.get())
         set_target_column(object, self)
+
+def confirm_username(object, self):
+    clear_middle_frame(self)
+    self.domain_label = Label(self.middle_wrapper, text = f"You entered '{object.domain}' as the domain. Please confirm choice or go back.", padx=10, pady=5,)
+    self.confirm_domain_choice_button = Button(self.middle_wrapper, text="Confirm Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_target_column(object, self))
+    self.redo_domain_button = Button(self.middle_wrapper, text="Edit Domain Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_domain(object, self))
+    self.domain_label.pack()
+    self.confirm_domain_choice_button.pack()
+    self.redo_domain_button.pack()
+
+def redo_domain(object, self):
+    delattr(object, "domain")
+    select_domain(object, self)
 
 #=================================STREET ADDRESS CONFIGURATION===================================#
 def select_street_address(object, self): #Function that prompts user to enter a street name for generated street addresses
@@ -382,7 +507,20 @@ def set_street_address(object, street_choice, self):
     else:
         setattr(object, "street", street_choice.get())
         setattr(object, "frequency_error", False)
-        select_frequency(object, self)
+        confirm_street(object, self)
+
+def confirm_street(object, self):
+    clear_middle_frame(self)
+    self.street_label = Label(self.middle_wrapper, text = f"You entered '{object.street}' as the street name. Please confirm choice or go back.", padx=10, pady=5,)
+    self.confirm_street_choice_button = Button(self.middle_wrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: select_frequency(object, self))
+    self.redo_street_button = Button(self.middle_wrapper, text="Edit Street Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_street(object, self))
+    self.street_label.pack()
+    self.confirm_street_choice_button.pack()
+    self.redo_street_button.pack()
+
+def redo_street(object, self):
+    delattr(object, "street")
+    select_street_address(object, self)
 
 def select_frequency(object, self):  # Function that displays the dropdown to choose the street line 2 frequency
     if object.frequency_error == False:
@@ -418,7 +556,20 @@ def set_frequency(object, frequency_choice, self):
         select_frequency(object, self)
     else:
         setattr(object, "frequency", frequency_choice.get())
-        set_target_column(object, self)
+        confirm_frequency(object, self)
+
+def confirm_frequency(object, self):
+    clear_middle_frame(self)
+    self.frequency_label = Label(self.middle_wrapper, text = f"You selected '{object.frequency}' as the frequency. Please confirm choice or go back.", padx=10, pady=5,)
+    self.confirm_frequency_choice_button = Button(self.middle_wrapper, text="Confirm Frequency", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_target_column(object, self))
+    self.redo_frequency_button = Button(self.middle_wrapper, text="Change Frequency", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_frequency(object, self))
+    self.frequency_label.pack()
+    self.confirm_frequency_choice_button.pack()
+    self.redo_frequency_button.pack()
+
+def redo_frequency(object, self):
+    delattr(object, "frequency")
+    select_frequency(object, self)
 
 #=================================ENGINE FUNCTIONS===================================#        
 def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function
@@ -427,32 +578,26 @@ def generate_data(object, self): #Function that reads business object choice and
     self.export_btn.pack()
     if object.object_choice == "Phone Number":
         generate_phone_number(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "Email Address":
         generate_email_address(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "Street Address":
         generate_street_address(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "National Identifier":
         generate_national_identifier(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "Name":
         generate_name(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "Salary":
         generate_salary(object)
-        reorder_columns(object)
-        display_data(object, self)
     elif object.object_choice == "Emergency Contact Name":
         generate_contact_name(object)
-        reorder_columns(object)
-        display_data(object, self)
+    elif object.object_choice == "Emergency Contact Phone Number":
+        generate_contact_phone_number(object)
+    elif object.object_choice == "Emergency Contact Street Address":
+        generate_contact_street_address(object)
+    elif object.object_choice == "Emergency Contact Email Address":
+        generate_email_address(object)
+    reorder_columns(object)
+    display_data(object, self)
 
 def generate_email_address(object):            #Function that generates email addresses
     object.data[object.target_column] = object.data[object.target_column].apply(lambda x: x.split("@")[0] + "@" + object.domain)
@@ -464,21 +609,71 @@ def generate_name(object): #function that calls the method generates within the 
 
 def generate_salary(object):
     for i in object.data.index:
-        if i % 2 == 0:
-            object.data.at[i, object.target_column] = return_5fig_salary()
+        if object.data.at[i, 'SalaryBasisName'] == 'Annual Salary':
+            object.data.at[i, object.target_column] = return_annual_salary()
         else:
-            object.data.at[i, object.target_column] = return_6fig_salary()
+            object.data.at[i, object.target_column] = return_hourly_salary()
 
 def generate_contact_name(object): #function that calls the method generates within the target column for emergency contact
     for i in object.data.index:
         object.data.at[i, object.target_contact_firstname_column] = return_firstname()
         object.data.at[i, object.target_contact_lastname_column] = return_lastname()
 
-def return_5fig_salary():
-    return fake.numerify("$9#,###")
+def generate_contact_name(object): #function that calls the method generates within the target column for emergency contact
+    for i in object.data.index:
+        object.data.at[i, object.target_contact_firstname_column] = return_firstname()
+        object.data.at[i, object.target_contact_lastname_column] = return_lastname()
 
-def return_6fig_salary():
-    return fake.numerify("$1##,###")
+#adding in the generation method for emergency contact phone number
+def generate_contact_phone_number(object):
+    for i in object.data.index:
+        if i % 1 == 0:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_normal_format() #normal format
+    for i in object.data.index:
+        if i % 3 == 1:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_format_2() #different format
+    for i in object.data.index:
+        if i % 5 == 1:
+            object.data.at[i, object.target_contact_phone_column] = return_phone_format_3() #different format
+
+#adding in the generation method for emergency contact street address
+def generate_contact_street_address(object):
+    for i in object.data.index:
+        object.data.at[i, object.target_contact_column_1] = return_contact_streetaddress(object.street, i)
+        if object.frequency == "1/10":
+            frequency = 10
+            print(i % frequency)
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        elif object.frequency == "1/20":
+            frequency = 20
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        elif object.frequency == "1/50":
+            frequency = 50
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+        else:
+            frequency = 100
+            if i % frequency == 0:
+                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+
+def return_contact_streetaddress(street_choice, i):
+    x = str(i + 110)
+    return x + " " + street_choice  # for each piece of data, create an address with their street name and incremented
+
+
+def return_contact_streetaddress_line2(i):  # this method will generate the line 2 data in the column if divisible by the frequency choice
+    x = str(i + 11)
+    return "Unit " + x
+
+def return_annual_salary():
+    x = random.randrange(65000, 200000)
+    return x
+
+def return_hourly_salary():
+    x = random.randrange(10, 40)
+    return x
 
 def return_firstname(): #returning a fake first name
     return fake.first_name()
