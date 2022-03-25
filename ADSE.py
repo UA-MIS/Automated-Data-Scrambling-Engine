@@ -70,6 +70,17 @@ def create_columns(object, self):
         object.data["METADATA"] = "MERGE"
         object.data["User"] = "User"
         route_configuration(object, self)
+    elif object.object_choice == "Emergency Contact Phone Number":
+        object.data["PhoneNumber"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["ContactPhone"] = "ContactPhone"
+        route_configuration(object, self)
+    elif object.object_choice == "Emergency Contact Street Address":
+        object.data["AddressLine1"] = ""
+        object.data["AddressLine2"] = ""
+        object.data["METADATA"] = "MERGE"
+        object.data["PersonAddress"] = "PersonAddress"
+        route_configuration(object, self)
 
 def route_configuration(object, self):
     if object.object_choice == "Street Address":
@@ -571,6 +582,44 @@ def redo_frequency(object, self):
     delattr(object, "frequency")
     select_frequency(object, self)
 
+#=================================EMERGENCY CONTACT CONFIGURATION===================================#
+def display_emergency_contact_dropdown(object, self): #Function that displays the dropdown to choose the emergency contact business object
+    EMERGENCYCONTACTOBJECTS = ["Name", "Phone Number" "Street Address"]
+    objectChoice = StringVar()
+    objectChoice.set("--Emergency Contact Business Object--")
+    self.dropdownLabel = Label(self.middle_wrapper, text="Select the Emergency Contact Business Object that corresponds with your file:")
+    self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *EMERGENCYCONTACTOBJECTS)
+    self.dropdownLabel.pack()
+    self.objectDropdown.pack()
+    self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: route_emergency_contact_configuration(object, self))
+    self.confirmObjectBTN.pack()
+
+def route_emergency_contact_configuration(object, self):
+    if object.object_choice == "Street Address":
+        setattr(object, "is_street_empty", False)
+        select_street_address(object, self)
+    elif object.object_choice == "Email Address":
+        setattr(object, "domain", "")
+        setattr(object, "is_domain_empty", False)
+        select_domain(object, self)
+    else: #routing to the target column for the name choice
+        set_target_column(object, self)
+
+def set_target_emergency_contact_column(object, self):
+    if object.object_choice == "Emergency Contact Name":  # setting the target firstname and lastname columns
+        clear_middle_frame(self)
+        setattr(object, "target_contact_firstname_column", "EmergencyContactFirstName")
+        setattr(object, "target_contact_lastname_column", "EmergencyContactLastName")
+        generate_data(object, self)
+    elif object.object_choice == "Emergency Contact Street Address":
+        clear_middle_frame(self)
+        setattr(object, "target_contact_column_1", "EmergencyContactAddressLine1")
+        setattr(object, "target_contact_column_2", "EmergencyContactAddressLine2")
+    elif object.object_choice == "Emergency Contact Phone Number":
+        clear_middle_frame(self)
+        setattr(object, "target_contact_phone_column", "EmergencyContactPhoneNumber")
+        generate_data(object, self)
+
 #=================================ENGINE FUNCTIONS===================================#        
 def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function
     self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below"
@@ -614,6 +663,7 @@ def generate_salary(object):
         else:
             object.data.at[i, object.target_column] = return_hourly_salary()
 
+#Emergency Contact generate methods
 def generate_contact_name(object): #function that calls the method generates within the target column for emergency contact
     for i in object.data.index:
         object.data.at[i, object.target_contact_firstname_column] = return_firstname()
