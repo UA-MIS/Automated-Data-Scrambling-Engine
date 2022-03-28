@@ -13,13 +13,13 @@ def add_file(self): #Function that allows user to upload files with different de
         UI.clear_bottom_frame_except_filenamelabel(self)
         self.delim_choice = StringVar()
         self.no_delimiter_label = Label(self.bottom_wrapper, text = "No delimiter chosen.", fg = "red")
-        self.no_delimiter_label.pack()
+        self.no_delimiter_label.pack(padx=2.5, pady=2.5)
         self.delim_entry_label = Label(self.bottom_wrapper, text = "Please enter the delimiter your file uses:")
         self.delim_entry = Entry(self.bottom_wrapper, textvariable = self.delim_choice)
-        self.delim_confirm_btn = Button(self.bottom_wrapper, text="Confirm Delimiter", command = lambda: add_file(self))
-        self.delim_entry_label.pack()
+        self.delim_confirm_btn = Button(self.bottom_wrapper, text="Confirm Delimiter", fg="white", bg="#990000", command = lambda: add_file(self))
+        self.delim_entry_label.pack(padx=2.5, pady=2.5)
         self.delim_entry.pack()
-        self.delim_confirm_btn.pack(padx = 20, pady = 5)
+        self.delim_confirm_btn.pack(padx=2.5, pady=2.5)
     else:
         if self.delim_choice.get() == ',':
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
@@ -28,16 +28,16 @@ def add_file(self): #Function that allows user to upload files with different de
                 UI.clear_bottom_frame_except_filenamelabel(self)
                 self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 self.not_acceptable_label.pack()
-                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: add_file(self))
+                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="dark blue", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("TXT", "*.txt"), ("all files", "*.*")))
             file_extension = os.path.splitext(file_name)[1]
             if file_extension != ".txt" and file_extension != ".dat":
                 UI.clear_bottom_frame_except_filenamelabel(self)
-                self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red", padx=5, pady=5)
-                self.not_acceptable_label.pack()
-                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: add_file(self))
+                self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
+                self.not_acceptable_label.pack(padx=2.5, pady=2.5)
+                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="dark blue", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
         data = pd.read_csv(file_name, header=0, sep=self.delim_choice.get())
         self.file_name_label["text"] = file_name
@@ -62,10 +62,10 @@ def export_data(object, self): #Function that exports data as pipe delimited .da
     else:
         self.top_label["text"] = "File failed to export."
     UI.clear_bottom_frame_except_filenamelabel(self)
-    self.export_zip_btn = Button(self.bottom_wrapper, text = "Convert Exported Data to ZIP", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: export_zip(savePath, self))
-    self.export_zip_btn.pack()
-    self.restart_btn = Button(self.bottom_wrapper, text = "Scramble New Business Object", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: UI.restart_app(self))
-    self.restart_btn.pack()
+    self.export_zip_btn = Button(self.bottom_wrapper, text = "Convert Exported Data to ZIP", fg="white", bg="#990000", command=lambda: export_zip(savePath, self))
+    self.export_zip_btn.pack(padx=2.5, pady=2.5)
+    self.restart_btn = Button(self.bottom_wrapper, text = "Scramble New Business Object", fg="white", bg="#990000", command=lambda: UI.restart_app(self))
+    self.restart_btn.pack(padx=2.5, pady=2.5)
 
 def export_zip(name_path, self):                                    #function to export the data as a compressed zip file
     savePath = filedialog.askopenfile(mode='r')     #this is setting the savePath variable to a read only portion of the file dialog selection

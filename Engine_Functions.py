@@ -10,9 +10,9 @@ fake = faker.Faker()
 
 #=================================ENGINE FUNCTIONS===================================#        
 def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function
-    self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below"
-    self.export_btn = Button(self.bottom_wrapper, text = "Export Data", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: FO.export_data(object, self))
-    self.export_btn.pack()
+    self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below,"
+    self.export_btn = Button(self.bottom_wrapper, text = "Export Data", fg="white", bg="#990000", command=lambda: FO.export_data(object, self))
+    self.export_btn.pack(padx=2.5, pady=2.5)
     if object.object_choice == "Phone Number":
         generate_phone_number(object)
     elif object.object_choice == "Email Address":

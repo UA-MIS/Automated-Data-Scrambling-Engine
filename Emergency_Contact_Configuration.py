@@ -14,10 +14,10 @@ def display_emergency_contact_dropdown(object, self): #Function that displays th
         contact_object_choice.set("--Emergency Contact Business Object--")
         self.contactDropdownLabel = Label(self.middle_wrapper, text="Select the Emergency Contact Business Object that corresponds with your file:")
         self.contactObjectDropdown = OptionMenu(self.middle_wrapper, contact_object_choice, *EMERGENCYCONTACTOBJECTS)
-        self.contactDropdownLabel.pack()
-        self.contactObjectDropdown.pack()
-        self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_emergency_contact_object(object, self, contact_object_choice))
-        self.confirmContactObjectBTN.pack()
+        self.contactDropdownLabel.pack(padx=2.5, pady=2.5)
+        self.contactObjectDropdown.pack(padx=2.5, pady=2.5)
+        self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", fg="white", bg="#990000", command=lambda: set_emergency_contact_object(object, self, contact_object_choice))
+        self.confirmContactObjectBTN.pack(padx=2.5, pady=2.5)
     else:
         UI.clear_middle_frame(self)
         EMERGENCYCONTACTOBJECTS = ["Emergency Contact Name", "Emergency Contact Phone Number", "Emergency Contact Street Address", "Emergency Contact Email Address"]
@@ -27,10 +27,10 @@ def display_emergency_contact_dropdown(object, self): #Function that displays th
         self.contactDropdownLabel = Label(self.middle_wrapper, text="Select the Emergency Contact Business Object that corresponds with your file:")
         self.contactObjectDropdown = OptionMenu(self.middle_wrapper, contact_object_choice, *EMERGENCYCONTACTOBJECTS)
         self.error_label.pack()
-        self.contactDropdownLabel.pack()
-        self.contactObjectDropdown.pack()
-        self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: set_emergency_contact_object(object, self, contact_object_choice))
-        self.confirmContactObjectBTN.pack()
+        self.contactDropdownLabel.pack(padx=2.5, pady=2.5)
+        self.contactObjectDropdown.pack(padx=2.5, pady=2.5)
+        self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", fg="white", bg="#990000", command=lambda: set_emergency_contact_object(object, self, contact_object_choice))
+        self.confirmContactObjectBTN.pack(padx=2.5, pady=2.5)
 
 def set_emergency_contact_object(object, self, contact_object_choice):
     if contact_object_choice.get() == "--Emergency Contact Business Object--":

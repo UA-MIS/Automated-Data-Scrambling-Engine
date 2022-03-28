@@ -23,25 +23,25 @@ class Application(object):
         self.delim_choice = StringVar()
         self.delim_entry_label = Label(self.bottom_wrapper, text = "Please enter the delimiter your file uses:")
         self.delim_entry = Entry(self.bottom_wrapper, textvariable = self.delim_choice)
-        self.delim_confirm_btn = Button(self.bottom_wrapper, text="Confirm Delimiter", command = lambda: FO.add_file(self))
+        self.delim_confirm_btn = Button(self.bottom_wrapper, text="Confirm Delimiter", fg="white", bg="#990000", command = lambda: FO.add_file(self))
         self.treescrolly = Scrollbar(self.tv1, orient="vertical", command=self.tv1.yview)            #Updates the y-axis view of the widget
         self.treescrollx = Scrollbar(self.tv1, orient="horizontal", command=self.tv1.xview)          #Updates the x-axis view of the widget
         self.tv1.configure(xscrollcommand=self.treescrollx.set, yscrollcommand=self.treescrolly.set)    #Assigns the scrollbars to the Treeview
     
     
 
-        self.title_text.pack(fill="x", padx=5, pady=5)      #Places title text widget in window
+        self.title_text.pack(fill="x", padx=2.5, pady=2.5)      #Places title text widget in window
         self.top_wrapper.pack(fill="both", expand="yes", padx=20, pady=20)     #Places top_wrapper label frame in window
         self.middle_wrapper.pack(fill="x", expand="yes", padx=20, pady=20)  #Places middle_wrapper label frame in window
         self.bottom_wrapper.pack(fill="x", padx=20, pady=20)  #Places bottom_wrapper label frame in window
-        self.file_name_label.pack()                                             #Places fileName Label in bottom_wrapper frame
-        self.top_label.pack()                                                  #Places top label in top wrapper frame          
+        self.file_name_label.pack(padx=2.5, pady=2.5)                                             #Places fileName Label in bottom_wrapper frame
+        self.top_label.pack(padx=2.5, pady=2.5)                                                  #Places top label in top wrapper frame          
         self.tv1.pack(fill="both", expand="yes", padx=20, pady=20)            #Places treeview in top_wrapper frame
         self.treescrollx.pack(side="bottom", fill="x")                        #Makes the scrollbar fill the x axis of the Treeview widget
         self.treescrolly.pack(side="right", fill="y")                         #Makes the scrollbar fill the y axis of the Treeview widget
-        self.delim_entry_label.pack()
-        self.delim_entry.pack()
-        self.delim_confirm_btn.pack(padx = 20, pady = 5)
+        self.delim_entry_label.pack(padx=2.5, pady=2.5)
+        self.delim_entry.pack(padx=2.5, pady=2.5)
+        self.delim_confirm_btn.pack(padx=2.5, pady=2.5)
 
 
         self.root.title("Automated Data Scrambling Engine")  #Sets window title to the name of our project
@@ -89,24 +89,22 @@ def clear_data(self): #Function that clears the preview so that it can be repopu
 
 def display_dropdown(object, self): #Function that displays the dropdown to choose the business object
     if object.prior_error == False:
-        BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Username", "Emergency Contact"]
         objectChoice = StringVar()
         objectChoice.set("--Business Object--")
         self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
-        self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *BUSINESSOBJECTS)
-        self.dropdownLabel.pack()
-        self.objectDropdown.pack()
-        self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: BO.set_object(object, objectChoice, self))
-        self.confirmObjectBTN.pack()
+        self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *BO.BUSINESSOBJECTS)
+        self.dropdownLabel.pack(padx=2.5, pady=2.5)
+        self.objectDropdown.pack(padx=2.5, pady=2.5)
+        self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Business Object Choice", fg="white", bg="#990000", command=lambda: BO.set_object(object, objectChoice, self))
+        self.confirmObjectBTN.pack(padx=2.5, pady=2.5)
     else:
-        BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Username", "Emergency Contact"]
         objectChoice = StringVar()
         objectChoice.set("--Business Object--")
         self.error_label = Label(self.middle_wrapper, text="You did not select a business object. Please select one from the dropdown below.", fg="red")
         self.dropdownLabel = Label(self.middle_wrapper, text="Select the Business Object that corresponds with your file:")
-        self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *BUSINESSOBJECTS)
-        self.error_label.pack()
-        self.dropdownLabel.pack()
-        self.objectDropdown.pack()
-        self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Business Object Choice", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: BO.set_object(object, objectChoice, self))
-        self.confirmObjectBTN.pack()
+        self.objectDropdown = OptionMenu(self.middle_wrapper, objectChoice, *BO.BUSINESSOBJECTS)
+        self.error_label.pack(padx=2.5, pady=2.5)
+        self.dropdownLabel.pack(padx=2.5, pady=2.5)
+        self.objectDropdown.pack(padx=2.5, pady=2.5)
+        self.confirmObjectBTN = Button(self.middle_wrapper, text="Confirm Business Object Choice", fg="white", bg="#990000", command=lambda: BO.set_object(object, objectChoice, self))
+        self.confirmObjectBTN.pack(padx=2.5, pady=2.5)

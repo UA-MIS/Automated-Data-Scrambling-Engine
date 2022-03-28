@@ -6,6 +6,9 @@ import Email_Address_Configuration as EA
 import Username_Configuration as UN
 import Engine_Functions as EF
 #=================================BUSINESS OBJECT===================================#
+
+BUSINESSOBJECTS = ["Street Address", "Email Address", "Phone Number", "National Identifier", "Name", "Salary", "Username", "Emergency Contact"]
+
 class BusinessObject:
     def __init__(self, data, prior_error, is_generated):
         self.data = data
@@ -49,7 +52,6 @@ def create_columns(object, self):
         object.data["PersonEmail"] = "PersonEmail"
         route_configuration(object, self)
     elif object.object_choice == "Name":
-        print("here")
         object.data["METADATA"] = "MERGE"
         object.data["PersonName"] = "PersonName"
         object.data["FirstName"] = ""

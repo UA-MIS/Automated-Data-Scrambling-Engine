@@ -11,23 +11,23 @@ def select_street_address(object, self): #Function that prompts user to enter a 
         street_choice = StringVar()
         self.entry_label_street = Label(self.middle_wrapper, text="Please enter the street address you want to use for generated data:")
         self.street_entry = Entry(self.middle_wrapper, textvariable=street_choice)
-        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
+        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Name", fg="white", bg="#990000",
                                     command=lambda: set_street_address(object, street_choice, self))
-        self.entry_label_street.pack()
-        self.street_entry.pack()
-        self.confirm_street_btn.pack()
+        self.entry_label_street.pack(padx=2.5, pady=2.5)
+        self.street_entry.pack(padx=2.5, pady=2.5)
+        self.confirm_street_btn.pack(padx=2.5, pady=2.5)
     else:
         UI.clear_middle_frame(self)
         self.empty_street_label = Label(self.middle_wrapper, text = "The street name is empty. Please enter a street name.", fg = "red")
-        self.empty_street_label.pack()
+        self.empty_street_label.pack(padx=2.5, pady=2.5)
         street_choice = StringVar()
         self.entry_label_street = Label(self.middle_wrapper, text="Please enter the street address you want to use for generated data:")
         self.street_entry = Entry(self.middle_wrapper, textvariable=street_choice)
-        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue",
+        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Name", fg="white", bg="#990000",
                                     command=lambda: set_street_address(object, street_choice, self))
-        self.entry_label_street.pack()
-        self.street_entry.pack()
-        self.confirm_street_btn.pack()
+        self.entry_label_street.pack(padx=2.5, pady=2.5)
+        self.street_entry.pack(padx=2.5, pady=2.5)
+        self.confirm_street_btn.pack(padx=2.5, pady=2.5)
 
 def set_street_address(object, street_choice, self):
     if street_choice.get() == "":
@@ -40,15 +40,16 @@ def set_street_address(object, street_choice, self):
 
 def confirm_street(object, self):
     UI.clear_middle_frame(self)
-    self.street_label = Label(self.middle_wrapper, text = f"You entered '{object.street}' as the street name. Please confirm choice or go back.", padx=10, pady=5,)
-    self.confirm_street_choice_button = Button(self.middle_wrapper, text="Confirm Street Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: select_frequency(object, self))
-    self.redo_street_button = Button(self.middle_wrapper, text="Edit Street Name", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_street(object, self))
-    self.street_label.pack()
-    self.confirm_street_choice_button.pack()
-    self.redo_street_button.pack()
+    self.street_label = Label(self.middle_wrapper, text = f"You entered '{object.street}' as the street name. Please confirm choice or go back.")
+    self.confirm_street_choice_button = Button(self.middle_wrapper, text="Confirm Street Name", fg="white", bg="#990000", command=lambda: select_frequency(object, self))
+    self.redo_street_button = Button(self.middle_wrapper, text="Edit Street Name", fg="white", bg="#990000", command=lambda: redo_street(object, self))
+    self.street_label.pack(padx=2.5, pady=2.5)
+    self.confirm_street_choice_button.pack(padx=2.5, pady=2.5)
+    self.redo_street_button.pack(padx=2.5, pady=2.5)
 
 def redo_street(object, self):
     delattr(object, "street")
+    object.is_street_empty = False
     select_street_address(object, self)
 
 def select_frequency(object, self):  # Function that displays the dropdown to choose the street line 2 frequency
@@ -59,25 +60,25 @@ def select_frequency(object, self):  # Function that displays the dropdown to ch
         frequency_choice.set("--Street Address Line 2 Frequency--")
         self.frequency_label = tk.Label(self.middle_wrapper, text="Select how frequent you want to generate address line 2:")
         self.frequency_dropdown = tk.OptionMenu(self.middle_wrapper, frequency_choice, *FREQUENCY_OPTIONS)
-        self.frequency_label.pack()
-        self.frequency_dropdown.pack()
-        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
-                                    bg="dark blue", command=lambda: set_frequency(object, frequency_choice, self))
-        self.confirm_street_btn.pack(expand="true")
+        self.frequency_label.pack(padx=2.5, pady=2.5)
+        self.frequency_dropdown.pack(padx=2.5, pady=2.5)
+        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Line 2 Frequency Choice", fg="white",
+                                    bg="#990000", command=lambda: set_frequency(object, frequency_choice, self))
+        self.confirm_street_btn.pack(expand="true", padx=2.5, pady=2.5)
     else:
         UI.clear_middle_frame(self)
         FREQUENCY_OPTIONS = ["1/10", "1/20", "1/50", "1/100"]
         frequency_choice = tk.StringVar()
         frequency_choice.set("--Street Address Line 2 Frequency--")
         self.frequency_error_label = Label(self.middle_wrapper, text = "No frequency selected. Please select a frequency.", fg = "red")
-        self.frequency_error_label.pack()
+        self.frequency_error_label.pack(padx=2.5, pady=2.5)
         self.frequency_label = tk.Label(self.middle_wrapper, text="Select the frequency of which you want :")
         self.frequency_dropdown = tk.OptionMenu(self.middle_wrapper, frequency_choice, *FREQUENCY_OPTIONS)
-        self.frequency_label.pack()
-        self.frequency_dropdown.pack()
-        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Line 2 Frequency Choice", padx=10, pady=5, fg="white",
-                                    bg="dark blue", command=lambda: set_frequency(object, frequency_choice, self))
-        self.confirm_street_btn.pack(expand="true")
+        self.frequency_label.pack(padx=2.5, pady=2.5)
+        self.frequency_dropdown.pack(padx=2.5, pady=2.5)
+        self.confirm_street_btn = tk.Button(self.middle_wrapper, text="Confirm Street Line 2 Frequency Choice", fg="white",
+                                    bg="#990000", command=lambda: set_frequency(object, frequency_choice, self))
+        self.confirm_street_btn.pack(expand="true", padx=2.5, pady=2.5)
 
 def set_frequency(object, frequency_choice, self):
     if frequency_choice.get() == "--Street Address Line 2 Frequency--":
@@ -89,13 +90,14 @@ def set_frequency(object, frequency_choice, self):
 
 def confirm_frequency(object, self):
     UI.clear_middle_frame(self)
-    self.frequency_label = Label(self.middle_wrapper, text = f"You selected '{object.frequency}' as the frequency. Please confirm choice or go back.", padx=10, pady=5,)
-    self.confirm_frequency_choice_button = Button(self.middle_wrapper, text="Confirm Frequency", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: BO.set_target_column(object, self))
-    self.redo_frequency_button = Button(self.middle_wrapper, text="Change Frequency", padx=10, pady=5, fg="white", bg="dark blue", command=lambda: redo_frequency(object, self))
-    self.frequency_label.pack()
-    self.confirm_frequency_choice_button.pack()
-    self.redo_frequency_button.pack()
+    self.frequency_label = Label(self.middle_wrapper, text = f"You selected '{object.frequency}' as the frequency. Please confirm choice or go back.")
+    self.confirm_frequency_choice_button = Button(self.middle_wrapper, text="Confirm Frequency", fg="white", bg="#990000", command=lambda: BO.set_target_column(object, self))
+    self.redo_frequency_button = Button(self.middle_wrapper, text="Change Frequency", fg="white", bg="#990000", command=lambda: redo_frequency(object, self))
+    self.frequency_label.pack(padx=2.5, pady=2.5)
+    self.confirm_frequency_choice_button.pack(padx=2.5, pady=2.5)
+    self.redo_frequency_button.pack(padx=2.5, pady=2.5)
 
 def redo_frequency(object, self):
     delattr(object, "frequency")
+    object.frequency_error = False
     select_frequency(object, self)
