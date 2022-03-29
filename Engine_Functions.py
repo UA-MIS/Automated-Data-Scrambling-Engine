@@ -45,32 +45,14 @@ def generate_email_address(object):            #Function that generates email ad
 def generate_name(object): #function that calls the method generates within the target column
     for i in object.data.index:
         if object.data.at[i, "Gender"] == "M":
-            x = return_male_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last
+            object.data.at[i, object.target_firstname_column] = fake.first_name_male()
+            object.data.at[i, object.target_lastname_column] = fake.last_name()
         elif object.data.at[i, "Gender"] == "F":
-            x = return_female_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last
+            object.data.at[i, object.target_firstname_column] = fake.first_name_female()
+            object.data.at[i, object.target_lastname_column] = fake.last_name()
         else:
-            x = return_undecided_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last
-
-def return_male_name():
-    return fake.name_male()
-
-def return_female_name():
-    return fake.name_female()
-
-def return_undecided_name():
-    return fake.name_nonbinary()
+            object.data.at[i, object.target_firstname_column] = fake.first_name_nonbinary()
+            object.data.at[i, object.target_lastname_column] = fake.last_name()
 
 def generate_username(object):
     object.data[object.target_username_column] = object.data[object.target_username_column].apply(lambda x: x.split("@")[0] + "_" + object.username + "@test.com")
@@ -85,23 +67,12 @@ def generate_salary(object):
 def generate_contact_name(object): #function that calls the method generates within the target column
     for i in object.data.index:
         if object.data.at[i, "Gender"] == "M":
-            x = return_male_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last
+            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_male()
         elif object.data.at[i, "Gender"] == "F":
-            x = return_female_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last
+            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_female()
         else:
-            x = return_undecided_name()
-            first = x.split(" ")[0]
-            last = x.split(" ")[1]
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last
+            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_nonbinary()
+        object.data.at[i, object.target_contact_lastname_column] = fake.last_name()
 
 #adding in the generation method for emergency contact phone number
 def generate_contact_phone_number(object):

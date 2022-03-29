@@ -28,7 +28,7 @@ def add_file(self): #Function that allows user to upload files with different de
                 UI.clear_bottom_frame_except_filenamelabel(self)
                 self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 self.not_acceptable_label.pack()
-                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="dark blue", command=lambda: add_file(self))
+                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="#990000", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("TXT", "*.txt"), ("all files", "*.*")))
@@ -37,7 +37,7 @@ def add_file(self): #Function that allows user to upload files with different de
                 UI.clear_bottom_frame_except_filenamelabel(self)
                 self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 self.not_acceptable_label.pack(padx=2.5, pady=2.5)
-                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="dark blue", command=lambda: add_file(self))
+                self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="#990000", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
         data = pd.read_csv(file_name, header=0, sep=self.delim_choice.get())
         self.file_name_label["text"] = file_name

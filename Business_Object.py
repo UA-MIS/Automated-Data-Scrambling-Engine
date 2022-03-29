@@ -36,39 +36,34 @@ def create_columns(object, self):
         object.data["AddressLine2"] = ""
         object.data["METADATA"] = "MERGE"
         object.data["PersonAddress"] = "PersonAddress"
-        route_configuration(object, self)
     elif object.object_choice == "Phone Number":
         object.data["PhoneNumber"] = ""
         object.data["METADATA"] = "MERGE"
         object.data["PersonPhone"] = "PersonPhone"
-        route_configuration(object, self)
     elif object.object_choice == "National Identifier":
         object.data["NationalIdentifierNumber"] = ""
         object.data["METADATA"] = "MERGE"
         object.data["NationalIdentifier"] = "NationalIdentifier"
-        route_configuration(object, self)
     elif object.object_choice == "Email Address":
         object.data["METADATA"] = "MERGE"
         object.data["PersonEmail"] = "PersonEmail"
-        route_configuration(object, self)
     elif object.object_choice == "Name":
         object.data["METADATA"] = "MERGE"
         object.data["PersonName"] = "PersonName"
         object.data["FirstName"] = ""
         object.data["LastName"] = ""
-        route_configuration(object, self)
     elif object.object_choice == "Salary":
         object.data["METADATA"] = "MERGE"
         object.data["Salary"] = "Salary"
         object.data["SalaryAmount"] = ""
-        route_configuration(object, self)
     elif object.object_choice == "Username":
         object.data["METADATA"] = "MERGE"
         object.data["User"] = "User"
-        route_configuration(object, self)
+    route_configuration(object, self)
 
 def route_configuration(object, self):
     if object.object_choice == "Street Address":
+        setattr(object, "street", "")
         setattr(object, "is_street_empty", False)
         SA.select_street_address(object, self)
     elif object.object_choice == "Email Address":
