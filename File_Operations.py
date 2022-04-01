@@ -24,7 +24,7 @@ def add_file(self): #Function that allows user to upload files with different de
         if self.delim_choice.get() == ',':
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
             file_extension = os.path.splitext(file_name)[1]
-            if file_extension != ".csv" and file_extension != ".txt" and file_extension != ".dat":
+            if file_extension != ".csv" and file_extension != ".txt" and file_extension != ".dat": #File types allowed in application if user chooses comma as delimiter
                 UI.clear_bottom_frame_except_filenamelabel(self)
                 self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 self.not_acceptable_label.pack()
@@ -33,7 +33,7 @@ def add_file(self): #Function that allows user to upload files with different de
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("TXT", "*.txt"), ("all files", "*.*")))
             file_extension = os.path.splitext(file_name)[1]
-            if file_extension != ".txt" and file_extension != ".dat":
+            if file_extension != ".txt" and file_extension != ".dat": #File types allowed in application if user chooses a non-comma character
                 UI.clear_bottom_frame_except_filenamelabel(self)
                 self.not_acceptable_label = Label(self.bottom_wrapper, text="The file type you have chosen is not acceptable.", fg="red")
                 self.not_acceptable_label.pack(padx=2.5, pady=2.5)
@@ -81,7 +81,7 @@ def export_zip(name_path, self):                                    #function to
     else:
         self.top_label["text"] = "File failed to export."
 
-def reorder_columns(object): # Function that reorders columns based on what they need the order to be **STILL NEED ORDER
+def reorder_columns(object): # Function that reorders columns based on what they need the order to be, also drops gender column for name business object
     if object.object_choice == "Street Address":
         correct_order = ["METADATA", "PersonAddress", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
         object.data = object.data[correct_order]

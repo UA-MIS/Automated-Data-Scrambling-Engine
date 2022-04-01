@@ -4,11 +4,11 @@ import UI_Operations as UI
 import Business_Object as BO
 
 #=================================USERNAME CONFIGURATION===================================#
-def select_username(object, self): #Function that prompts user to enter a username generated usernames
+def select_username(object, self): #Function that prompts user to enter a username for generated usernames
     if object.is_username_empty == False:
         UI.clear_middle_frame(self)
         username_choice = StringVar()
-        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the username you want to use for generated data:")
+        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the text you want to add for generated data:")
         self.example_wrapper = Frame(self.middle_wrapper)
         example = object.data.at[0, 'Username']
         self.example_label = Label(self.example_wrapper, text="Example: " + example.split("@")[0] + "_")
@@ -23,10 +23,10 @@ def select_username(object, self): #Function that prompts user to enter a userna
         self.confirm_username_btn.pack(padx=2.5, pady=2.5)
     else:
         UI.clear_middle_frame(self)
-        self.empty_username_label = Label(self.middle_wrapper, text = "The username is empty. Please enter a username.", fg = "red")
+        self.empty_username_label = Label(self.middle_wrapper, text = "The text is empty.", fg = "red")
         self.empty_username_label.pack(padx=2.5, pady=2.5)
         username_choice = StringVar()
-        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the username you want to use for generated data:")
+        self.username_entry_label = Label(self.middle_wrapper, text = "Please enter the text you want to add for generated data:")
         self.example_wrapper = Frame(self.middle_wrapper)
         example = object.data.at[0, 'Username']
         self.example_label = Label(self.example_wrapper, text="Example: " + example.split("@")[0] + "_")
@@ -40,15 +40,15 @@ def select_username(object, self): #Function that prompts user to enter a userna
         self.example_label_2.pack(side="left", padx=2.5, pady=2.5)
         self.confirm_username_btn.pack(padx=2.5, pady=2.5)
 
-def set_username(object, username_choice, self):
+def set_username(object, username_choice, self): #Function that checks if username entry is empty
     if username_choice.get() == "":
         object.is_username_empty = True
-        select_username(object, self)
+        select_username(object, self) #Routes back to select username if empty
     else:
         setattr(object, "username", username_choice.get())
-        confirm_username(object, self)
+        confirm_username(object, self) #Routes to confirm_username if not empty
 
-def confirm_username(object, self):
+def confirm_username(object, self): #Function that prompts user to confirm or redo their username choice
     UI.clear_middle_frame(self)
     self.username_label = Label(self.middle_wrapper, text = f"You entered '{object.username}' as the text to add to the username. Please confirm choice or go back.", padx=10, pady=2.5,)
     self.confirm_username_choice_button = Button(self.middle_wrapper, text="Confirm Username", fg="white", bg="#990000", command=lambda: BO.set_target_column(object, self))
@@ -57,6 +57,6 @@ def confirm_username(object, self):
     self.confirm_username_choice_button.pack(padx=2.5, pady=2.5)
     self.redo_username_button.pack(padx=2.5, pady=2.5)
 
-def redo_username(object, self):
+def redo_username(object, self): #Function that deletes username choice and routes user to redo username choice
     delattr(object, "username")
     select_username(object, self)

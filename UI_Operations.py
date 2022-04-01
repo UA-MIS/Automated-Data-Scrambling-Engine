@@ -7,11 +7,14 @@ import File_Operations as FO
 import Business_Object as BO
 
 #=================================UI OPERATIONS===================================#
-class Application(object):
+class Application(object): #Application class
     def __init__(self, event=None):
         self.root = Tk()
         self.title_font = ("Calibri", 20, "bold")
         self.small_font = ("Calibri", 10, "bold")
+        self.s = ttk.Style()
+        self.s.theme_use('clam')
+        self.s.configure("red.Horizontal.TProgressbar", foreground='#990000', background='#990000')
 
         self.title_text = Label(self.root, text="Welcome to the Automated Data Scrambling Engine!", font=self.title_font) #Creates text that appears at top of application
         self.top_wrapper = LabelFrame(self.root, text="Preview")                                    #Creates preview Section
@@ -48,19 +51,19 @@ class Application(object):
         self.root.geometry("800x700")                        #Sets window size to 800x700 pixels
         self.root.mainloop()                                 #Keeps window open and running
 
-def restart_app(self):
+def restart_app(self): #Function that restarts application
     self.root.destroy()
     app = Application()
 
-def clear_middle_frame(self): #Function that clears the middle wrapper
+def clear_middle_frame(self): #Function that clears the middle frame
     for widget in self.middle_wrapper.winfo_children():
         widget.destroy()
 
-def clear_bottom_frame(self): #Function that clears the middle wrapper
+def clear_bottom_frame(self): #Function that clears the bottom frame
     for widget in self.bottom_wrapper.winfo_children():
         widget.destroy()
 
-def clear_bottom_frame_except_filenamelabel(self): #Function that clears the bottom wrapper
+def clear_bottom_frame_except_filenamelabel(self): #Function that clears the bottom frame except for file name label
     for widget in self.bottom_wrapper.winfo_children():
         if widget.widgetName != "label" or widget["text"] == "Please enter the delimiter your file uses:" or widget["text"] == "No delimiter chosen." or widget["text"] == "The file type you have chosen is not acceptable.":
             widget.destroy()

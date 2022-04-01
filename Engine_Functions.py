@@ -1,16 +1,18 @@
 #=================================IMPORTS===================================#
 from tkinter import *
+import tkinter.ttk as ttk
+from tkinter.ttk import Progressbar
 import faker as faker
 import random
 import UI_Operations as UI
 import File_Operations as FO
+import names
 
 #=================================INITIALIZE FAKER===================================#
 fake = faker.Faker()
 
 #=================================ENGINE FUNCTIONS===================================#        
-def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function
-    self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below,"
+def generate_data(object, self): #Function that reads business object choice and directs data to corresponding generate function, creates export button, reorders columns, and displays new data
     self.export_btn = Button(self.bottom_wrapper, text = "Export Data", fg="white", bg="#990000", command=lambda: FO.export_data(object, self))
     self.export_btn.pack(padx=2.5, pady=2.5)
     if object.object_choice == "Phone Number":
@@ -22,13 +24,13 @@ def generate_data(object, self): #Function that reads business object choice and
     elif object.object_choice == "National Identifier":
         generate_national_identifier(object)
     elif object.object_choice == "Name":
-        generate_name(object)
+        generate_name(object, self)
     elif object.object_choice == "Salary":
         generate_salary(object)
     elif object.object_choice == "Username":
         generate_username(object)
     elif object.object_choice == "Emergency Contact Name":
-        generate_contact_name(object)
+        generate_contact_name(object, self)
     elif object.object_choice == "Emergency Contact Phone Number":
         generate_contact_phone_number(object)
     elif object.object_choice == "Emergency Contact Street Address":
@@ -37,45 +39,87 @@ def generate_data(object, self): #Function that reads business object choice and
         generate_email_address(object)
     object.is_generated = True
     FO.reorder_columns(object)
+    self.top_label["text"] = "Data has been updated and columns have been reordered. You can export by clicking the 'Export Data' button below."
     UI.display_data(object, self)
 
-def generate_email_address(object):            #Function that generates email addresses
+def generate_email_address(object): #Function that creates email addresses with users domain choice
     object.data[object.target_column] = object.data[object.target_column].apply(lambda x: x.split("@")[0] + "@" + object.domain)
 
-def generate_name(object): #function that calls the method generates within the target column
+def generate_name(object, self): #Function that generates names based on gender, includes loading bar
+    self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+    self.loading_label.pack()
+    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+    self.progress.pack()
+    step = len(object.data.index)/100
     for i in object.data.index:
         if object.data.at[i, "Gender"] == "M":
-            object.data.at[i, object.target_firstname_column] = fake.first_name_male()
-            object.data.at[i, object.target_lastname_column] = fake.last_name()
+            first = random.choice(names.male_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_firstname_column] = first
+            object.data.at[i, object.target_lastname_column] = last
         elif object.data.at[i, "Gender"] == "F":
-            object.data.at[i, object.target_firstname_column] = fake.first_name_female()
-            object.data.at[i, object.target_lastname_column] = fake.last_name()
+            first = random.choice(names.female_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_firstname_column] = first
+            object.data.at[i, object.target_lastname_column] = last
         else:
-            object.data.at[i, object.target_firstname_column] = fake.first_name_nonbinary()
-            object.data.at[i, object.target_lastname_column] = fake.last_name()
+            x = random.choice([1, 2])
+            if x == 1:
+                first = random.choice(names.male_first_names)
+            else:
+                first = random.choice(names.female_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_firstname_column] = first
+            object.data.at[i, object.target_lastname_column] = last    
+        if i % step == 0:
+            self.progress["value"] += 1
+        self.progress.update()
+    self.progress.destroy()
+    self.loading_label.destroy()
 
-def generate_username(object):
+def generate_username(object): #Function that creates usernames with users username choice
     object.data[object.target_username_column] = object.data[object.target_username_column].apply(lambda x: x.split("@")[0] + "_" + object.username + "@test.com")
 
-def generate_salary(object):
+def generate_salary(object): #Function that generates salaries based on salary type
     for i in object.data.index:
         if object.data.at[i, 'SalaryBasisName'] == 'Annual Salary':
             object.data.at[i, object.target_column] = return_annual_salary()
         else:
             object.data.at[i, object.target_column] = return_hourly_salary()
 
-def generate_contact_name(object): #function that calls the method generates within the target column
+def generate_contact_name(object, self): #Function that generates names based on gender, includes loading bar
+    self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+    self.loading_label.pack()
+    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+    self.progress.pack()
+    step = len(object.data.index)/100
     for i in object.data.index:
         if object.data.at[i, "Gender"] == "M":
-            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_male()
+            first = random.choice(names.male_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_contact_firstname_column] = first
+            object.data.at[i, object.target_contact_lastname_column] = last
         elif object.data.at[i, "Gender"] == "F":
-            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_female()
+            first = random.choice(names.female_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_contact_firstname_column] = first
+            object.data.at[i, object.target_contact_lastname_column] = last
         else:
-            object.data.at[i, object.target_contact_firstname_column] = fake.first_name_nonbinary()
-        object.data.at[i, object.target_contact_lastname_column] = fake.last_name()
+            x = random.choice([1, 2])
+            if x == 1:
+                first = random.choice(names.male_first_names)
+            else:
+                first = random.choice(names.female_first_names)
+            last = random.choice(names.last_names)
+            object.data.at[i, object.target_contact_firstname_column] = first
+            object.data.at[i, object.target_contact_lastname_column] = last    
+        if i % step == 0:
+            self.progress["value"] += 1
+        self.progress.update()
+    self.progress.destroy()
+    self.loading_label.destroy()
 
-#adding in the generation method for emergency contact phone number
-def generate_contact_phone_number(object):
+def generate_contact_phone_number(object): #Function that generates phone numbers for emergency contact
     for i in object.data.index:
         if i % 1 == 0:
             object.data.at[i, object.target_contact_phone_column] = return_phone_normal_format() #normal format
@@ -86,50 +130,43 @@ def generate_contact_phone_number(object):
         if i % 5 == 1:
             object.data.at[i, object.target_contact_phone_column] = return_phone_format_3() #different format
 
-#adding in the generation method for emergency contact street address
-def generate_contact_street_address(object):
+def generate_contact_street_address(object): #Function that generates street addresses for emergency contact using users street choice and frequency choice
     for i in object.data.index:
-        object.data.at[i, object.target_contact_column_1] = return_contact_streetaddress(object.street, i)
+        object.data.at[i, object.target_contact_column_1] = return_streetaddress(object.street, i)
         if object.frequency == "1/10":
             frequency = 10
             if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
         elif object.frequency == "1/20":
             frequency = 20
             if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
         elif object.frequency == "1/50":
             frequency = 50
             if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
         else:
             frequency = 100
             if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_contact_streetaddress_line2(i)
+                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
 
-def return_contact_streetaddress(street_choice, i):
+def return_streetaddress(street_choice, i): #Function that returns street addresses based on users choice
     x = str(i + 110)
-    return x + " " + street_choice  # for each piece of data, create an address with their street name and incremented
+    return x + " " + street_choice
 
-def return_contact_streetaddress_line2(i):  # this method will generate the line 2 data in the column if divisible by the frequency choice
+def return_streetaddress_line2(i): #Function that returns street address line 2's
     x = str(i + 11)
     return "Unit " + x
 
-def return_annual_salary():
+def return_annual_salary(): #Function that returns an annual salary
     x = random.randrange(65000, 200000)
     return x
 
-def return_hourly_salary():
+def return_hourly_salary(): #Function that returns an hourly salary
     x = random.randrange(10, 40)
     return x
-
-def return_firstname(): #returning a fake first name
-    return fake.first_name()
-
-def return_lastname(): #returning a fake last name
-    return fake.last_name()
    
-def generate_street_address(object):  # Function that generates street addresses
+def generate_street_address(object):  #Function that generates street addresses using users street choice and frequency choice
     for i in object.data.index:
         object.data.at[i, object.target_column_1] = return_streetaddress(object.street, i)
         if object.frequency == "1/10":
@@ -148,38 +185,30 @@ def generate_street_address(object):  # Function that generates street addresses
             frequency = 100
             if i % frequency == 0:
                 object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-       
-def return_streetaddress(street_choice, i):
-    x = str(i + 110)
-    return x + " " + street_choice         #for each piece of data, create an address with their street name and incremented
 
-def return_streetaddress_line2(i):  # this method will generate the line 2 data in the column if divisible by the frequency choice
-    x = str(i + 11)
-    return "Unit " + x
-
-def generate_phone_number(object):             #Function that generates phone numbers
+def generate_phone_number(object): #Function that generates phone numbers with different formats
     for i in object.data.index:
         if i % 1 == 0:
-            object.data.at[i, object.target_column] = return_phone_normal_format() #normal format
+            object.data.at[i, object.target_column] = return_phone_normal_format()
     for i in object.data.index:
         if i % 3 == 1:
-            object.data.at[i, object.target_column] = return_phone_format_2() #different format
+            object.data.at[i, object.target_column] = return_phone_format_2()
     for i in object.data.index:
         if i % 5 == 1:
-            object.data.at[i, object.target_column] = return_phone_format_3() #different format
+            object.data.at[i, object.target_column] = return_phone_format_3()
    
-def generate_national_identifier(object):      #Function that generates national identifiers
+def generate_national_identifier(object): #Function that generates national identifiers
     for i in object.data.index:
         object.data.at[i, object.target_column] = return_SSN()
 
-def return_SSN(): #Actual Function that generates SSN's
+def return_SSN(): #Function that returns social security numbers
     return fake.ssn()
 
-def return_phone_normal_format(): #Actual Function that generates phone numbers
+def return_phone_normal_format(): #Function that generates phone numbers in normal format
     return fake.numerify("(###)-###-####")
 
-def return_phone_format_2(): #Actual Function that generates phone numbers
+def return_phone_format_2(): #Function that generates phone numbers without parenthesis
     return fake.numerify("###-###-####")
 
-def return_phone_format_3(): #Actual Function that generates phone numbers
+def return_phone_format_3(): #Function that generates phone numbers without parenthesis and hyphens
     return fake.numerify("### ### ####")

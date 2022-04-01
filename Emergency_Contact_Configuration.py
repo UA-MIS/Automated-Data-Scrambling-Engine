@@ -32,7 +32,7 @@ def display_emergency_contact_dropdown(object, self): #Function that displays th
         self.confirmContactObjectBTN = Button(self.middle_wrapper, text="Confirm Emergency Contact Business Object Choice", fg="white", bg="#990000", command=lambda: set_emergency_contact_object(object, self, contact_object_choice))
         self.confirmContactObjectBTN.pack(padx=2.5, pady=2.5)
 
-def set_emergency_contact_object(object, self, contact_object_choice):
+def set_emergency_contact_object(object, self, contact_object_choice): #Function that checks if user selected an emergency contact business object, sets the emergency contact business object choice, and routes to create_columns for emergency contacts
     if contact_object_choice.get() == "--Emergency Contact Business Object--":
         setattr(object, "prior_error", True)
         UI.clear_middle_frame(self)
@@ -41,8 +41,8 @@ def set_emergency_contact_object(object, self, contact_object_choice):
         setattr(object, "object_choice", contact_object_choice.get())
         create_emergency_contact_columns(object, self)
 
-def create_emergency_contact_columns(object, self):
-    if object.object_choice == "Emergency Contact Name":  # adding in emergency contact methods to the pre-existing methods
+def create_emergency_contact_columns(object, self): #Function that creates the needed columns for each emergency contact business object
+    if object.object_choice == "Emergency Contact Name":
         object.data["METADATA"] = "MERGE"
         object.data["ContactName"] = "ContactName"
         object.data["FirstName"] = ""
@@ -61,7 +61,7 @@ def create_emergency_contact_columns(object, self):
         object.data["ContactEmail"] = "ContactEmail"
     route_emergency_contact_configuration(object, self)
 
-def route_emergency_contact_configuration(object, self):
+def route_emergency_contact_configuration(object, self): #Function that either routes to corresponding configuration or to set_target_column if there is no configuration needed
     if object.object_choice == "Emergency Contact Street Address":
         setattr(object, "is_street_empty", False)
         SA.select_street_address(object, self)
