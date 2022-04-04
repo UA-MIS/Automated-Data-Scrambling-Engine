@@ -1,6 +1,7 @@
 #=================================IMPORTS===================================#
 from tkinter import *
 from tkinter import filedialog
+from tkinter.ttk import Progressbar
 import pandas as pd
 import zipfile
 import os.path
@@ -23,6 +24,9 @@ def add_file(self): #Function that allows user to upload files with different de
     else:
         if self.delim_choice.get() == ',':
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("CSV", "*.csv"), ("all files", "*.*")))
+            self.loading_label = Label(self.top_wrapper, text="Uploading file...", font=self.large_font)
+            self.loading_label.pack()
+            self.loading_label.update()
             file_extension = os.path.splitext(file_name)[1]
             if file_extension != ".csv" and file_extension != ".txt" and file_extension != ".dat": #File types allowed in application if user chooses comma as delimiter
                 UI.clear_bottom_frame_except_filenamelabel(self)
@@ -32,6 +36,9 @@ def add_file(self): #Function that allows user to upload files with different de
                 self.choose_correct_file_btn.pack(expand="true")
         else:
             file_name = filedialog.askopenfilename(initialdir="/", title="Select File", filetypes=(("DAT", "*.dat"), ("TXT", "*.txt"), ("all files", "*.*")))
+            self.loading_label = Label(self.top_wrapper, text="Uploading file...", font=self.large_font)
+            self.loading_label.pack()
+            self.loading_label.update()
             file_extension = os.path.splitext(file_name)[1]
             if file_extension != ".txt" and file_extension != ".dat": #File types allowed in application if user chooses a non-comma character
                 UI.clear_bottom_frame_except_filenamelabel(self)
@@ -40,6 +47,7 @@ def add_file(self): #Function that allows user to upload files with different de
                 self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="#990000", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
         data = pd.read_csv(file_name, header=0, sep=self.delim_choice.get())
+        self.loading_label.destroy()
         self.file_name_label["text"] = file_name
         prior_error = False
         is_generated = False

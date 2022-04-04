@@ -11,6 +11,7 @@ class Application(object): #Application class
     def __init__(self, event=None):
         self.root = Tk()
         self.title_font = ("Calibri", 20, "bold")
+        self.large_font = ("Calibri", 15, "bold")
         self.small_font = ("Calibri", 10, "bold")
         self.s = ttk.Style()
         self.s.theme_use('clam')
