@@ -17,13 +17,65 @@ class BusinessObject: #Business Object class that is used throughout the applica
     def new_attribute(self, attr): #Method to set attributes for business object
         setattr(self, attr, attr)
 
-def set_object(object, object_choice, self): #Function that checks if user selected a business object, sets the business object choice, routes emergency contact objects to emergency contact dropdown, and routes all other objects to create_columns Function
-    if object_choice.get() == "--Business Object--":
+def check_columns(object, object_choice, self):
+    if object_choice.get() == "Street Address":
+        if 'AddressLine3' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Email Address":
+        if 'EmailType' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Phone Number":
+        if 'PhoneType' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Name":
+        if 'Gender' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "National Identifier":
+        if 'NationalIdentifierType' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Salary":
+        if 'SalaryBasisName' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Username":
+        if 'Username' in object.data.columns:
+            set_object(object, object_choice.get(), self)
+        else:
+            setattr(object, "prior_error", True)
+            UI.clear_middle_frame(self)
+            UI.display_dropdown(object, self)
+    elif object_choice.get() == "Emergency Contact":
+        set_object(object, object_choice.get(), self)
+    else:
         setattr(object, "prior_error", True)
         UI.clear_middle_frame(self)
         UI.display_dropdown(object, self)
-    else:
-        setattr(object, "object_choice", object_choice.get())
+
+def set_object(object, object_choice, self): #Function that checks if user selected a business object, sets the business object choice, routes emergency contact objects to emergency contact dropdown, and routes all other objects to create_columns Function
+        setattr(object, "object_choice", object_choice)
         setattr(object, "prior_error", False)
         if object.object_choice == "Emergency Contact":
             EC.display_emergency_contact_dropdown(object, self)

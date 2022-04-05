@@ -128,27 +128,15 @@ def generate_contact_name(object, self): #Function that generates names based on
             object.data.at[i, object.target_contact_lastname_column] = last    
         if i % step == 0:
             self.progress["value"] += 1
-        self.progress.update()
+            self.progress.update()
     self.progress.destroy()
     self.loading_label.destroy()
 
 def generate_contact_phone_number(object, self): #Function that generates phone numbers for emergency contact
-    self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...")
+    self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...", font=self.small_font)
     self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        if i % 1 == 0:
-            object.data.at[i, object.target_contact_phone_column] = return_phone_normal_format() #normal format
-        if i % 3 == 1:
-            object.data.at[i, object.target_contact_phone_column] = return_phone_format_2() #different format
-        if i % 5 == 1:
-            object.data.at[i, object.target_contact_phone_column] = return_phone_format_3() #different format
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
+    self.loading_label.update()
+    object.data[object.target_contact_phone_column] = object.data[object.target_contact_phone_column].apply(lambda x: return_phone())
     self.loading_label.destroy()
 
 def generate_contact_street_address(object, self): #Function that generates street addresses for emergency contact using users street choice and frequency choice
@@ -228,47 +216,28 @@ def generate_street_address(object, self):  #Function that generates street addr
     self.loading_label.destroy()
 
 def generate_phone_number(object, self): #Function that generates phone numbers with different formats
-    self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...")
+    self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...", font=self.small_font)
     self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        if i % 1 == 0:
-            object.data.at[i, object.target_column] = return_phone_normal_format()
-        if i % 3 == 1:
-            object.data.at[i, object.target_column] = return_phone_format_2()
-        if i % 5 == 1:
-            object.data.at[i, object.target_column] = return_phone_format_3()
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-            print(self.progress["value"])
-    self.progress.destroy()
+    self.loading_label.update()
+    object.data[object.target_column] = object.data[object.target_column].apply(lambda x: return_phone())
     self.loading_label.destroy()
    
 def generate_national_identifier(object, self): #Function that generates national identifiers
-    self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...")
+    self.loading_label = Label(self.top_wrapper, text="Generating National Identifiers...", font=self.small_font)
     self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        object.data.at[i, object.target_column] = return_SSN()
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
+    self.loading_label.update()
+    object.data[object.target_column] = object.data[object.target_column].apply(lambda x: return_SSN())
     self.loading_label.destroy()
 
 def return_SSN(): #Function that returns social security numbers
     return fake.ssn()
 
-def return_phone_normal_format(): #Function that generates phone numbers in normal format
-    return fake.numerify("(###)-###-####")
-
-def return_phone_format_2(): #Function that generates phone numbers without parenthesis
-    return fake.numerify("###-###-####")
-
-def return_phone_format_3(): #Function that generates phone numbers without parenthesis and hyphens
-    return fake.numerify("### ### ####")
+def return_phone(): #Function that generates phone numbers in different formats
+    number = random.randrange(1,4)
+    if number == 1:
+        return fake.numerify("(###)-###-####")
+    elif number == 2:
+        return fake.numerify("###-###-####")
+    else:
+        return fake.numerify("### ### ####")
+    

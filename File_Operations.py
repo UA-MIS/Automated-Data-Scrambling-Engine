@@ -100,7 +100,7 @@ def reorder_columns(object): # Function that reorders columns based on what they
         correct_order = ["METADATA", "PersonPhone", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
         object.data = object.data[correct_order]
     elif object.object_choice == "National Identifier":
-        correct_order = ["METADATA", "NationalIdentifier", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NationalIdentifierType", "LegislationCode", "PrimaryFlag", "NationalIdentifierNumber"]
+        correct_order = ["METADATA", "NationalIdentifier", "SourceSystemID", "SourceSystemOwner", "IssueDate", "ExpirationDate", "NationalIdentifierType", "LegislationCode", "PrimaryFlag", "NationalIdentifierNumber"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Name":
         object.data = object.data.drop('Gender', 1)
