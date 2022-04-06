@@ -17,12 +17,12 @@ class BusinessObject: #Business Object class that is used throughout the applica
     def new_attribute(self, attr): #Method to set attributes for business object
         setattr(self, attr, attr)
 
-def check_columns(object, object_choice, self):
+def check_columns(object, object_choice, self): #Function that checks if the selected business object corresponds with column names from file that user uploaded
     if object_choice.get() == "Street Address":
-        if 'AddressLine3' in object.data.columns:
-            set_object(object, object_choice.get(), self)
+        if 'AddressLine3' in object.data.columns: #checks if unique column exists in columns that user uploaded
+            set_object(object, object_choice.get(), self) #if columns exists, set the object equal to what they selected
         else:
-            setattr(object, "prior_error", True)
+            setattr(object, "prior_error", True) #if column doesn't exist, set error equal to true and redisplay dropdown
             UI.clear_middle_frame(self)
             UI.display_dropdown(object, self)
     elif object_choice.get() == "Email Address":
@@ -70,23 +70,23 @@ def check_columns(object, object_choice, self):
     elif object_choice.get() == "Emergency Contact":
         set_object(object, object_choice.get(), self)
     else:
-        setattr(object, "prior_error", True)
+        setattr(object, "prior_error", True) #if user didn't select a business object, set error equal to true and redisplay dropdown
         UI.clear_middle_frame(self)
         UI.display_dropdown(object, self)
 
-def set_object(object, object_choice, self): #Function that checks if user selected a business object, sets the business object choice, routes emergency contact objects to emergency contact dropdown, and routes all other objects to create_columns Function
+def set_object(object, object_choice, self): #Function that sets the business object choice
         setattr(object, "object_choice", object_choice)
         setattr(object, "prior_error", False)
-        if object.object_choice == "Emergency Contact":
+        if object.object_choice == "Emergency Contact": #routes emergency contact objects to emergency contact dropdown
             EC.display_emergency_contact_dropdown(object, self)
         else:
-            create_columns(object, self)
+            create_columns(object, self) #routes all other objects to create_columns Function
 
 def create_columns(object, self): #Function that creates the needed columns for each non-emergency contact business object
     if object.object_choice == "Street Address":
-        object.data["AddressLine1"] = ""
+        object.data["AddressLine1"] = "" #creates empty column titled "AddressLine1"
         object.data["AddressLine2"] = ""
-        object.data["METADATA"] = "MERGE"
+        object.data["METADATA"] = "MERGE" #creates column hardcoded with "MERGE", titled "METADATA"
         object.data["PersonAddress"] = "PersonAddress"
     elif object.object_choice == "Phone Number":
         object.data["PhoneNumber"] = ""
@@ -132,7 +132,7 @@ def route_configuration(object, self): #Function that either routes to correspon
 def set_target_column(object, self): #Function that sets the target column(s) for each business object
     UI.clear_middle_frame(self)
     if object.object_choice == "Street Address":
-        setattr(object, "target_column_1", "AddressLine1")
+        setattr(object, "target_column_1", "AddressLine1") #sets "AddressLine1" column as target_column_1
         setattr(object, "target_column_2", "AddressLine2")
     elif object.object_choice == "Phone Number":
         setattr(object, "target_column", "PhoneNumber")
