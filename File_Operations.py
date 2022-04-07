@@ -91,37 +91,37 @@ def export_zip(name_path, self):                                    #function to
 
 def reorder_columns(object): # Function that reorders columns based on what they need the order to be, also drops gender column for name business object
     if object.object_choice == "Street Address":
-        correct_order = ["METADATA", "PersonAddress", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
+        correct_order = ["METADATA", "PersonAddress", "SourceSystemId", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Email Address":
-        correct_order = ["METADATA", "PersonEmail", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "EmailType", "PrimaryFlag", "EmailAddress"]
+        correct_order = ["METADATA", "PersonEmail", "SourceSystemId", "SourceSystemOwner", "DateFrom", "DateTo", "EmailType", "PrimaryFlag", "EmailAddress"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Phone Number":
-        correct_order = ["METADATA", "PersonPhone", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
+        correct_order = ["METADATA", "PersonPhone", "SourceSystemId", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
         object.data = object.data[correct_order]
     elif object.object_choice == "National Identifier":
-        correct_order = ["METADATA", "NationalIdentifier", "SourceSystemID", "SourceSystemOwner", "IssueDate", "ExpirationDate", "NationalIdentifierType", "LegislationCode", "PrimaryFlag", "NationalIdentifierNumber"]
+        correct_order = ["METADATA", "NationalIdentifier", "SourceSystemId", "SourceSystemOwner", "IssueDate", "ExpirationDate", "NationalIdentifierType", "LegislationCode", "PrimaryFlag", "NationalIdentifierNumber"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Name":
         object.data = object.data.drop('Gender', 1)
-        correct_order = ["METADATA", "PersonName", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
+        correct_order = ["METADATA", "PersonName", "SourceSystemId", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Salary":
-        correct_order = ["METADATA", "Salary", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "SalaryBasisName", "SalaryAmount"]
+        correct_order = ["METADATA", "Salary", "SourceSystemId", "SourceSystemOwner", "DateFrom", "DateTo", "SalaryBasisName", "SalaryAmount"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Username":
-        correct_order = ["METADATA", "User", "SourceSystemID", "SourceSystemOwner", "Username"]
+        correct_order = ["METADATA", "User", "SourceSystemId", "SourceSystemOwner", "Username"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Emergency Contact Name":
         object.data = object.data.drop('Gender', 1)
-        correct_order = ["METADATA", "ContactName", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
+        correct_order = ["METADATA", "ContactName", "SourceSystemId", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "NameType", "LegislationCode", "FirstName", "LastName"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Emergency Contact Phone Number":
-        correct_order = ["METADATA", "ContactPhone", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
+        correct_order = ["METADATA", "ContactPhone", "SourceSystemId", "SourceSystemOwner", "DateFrom", "DateTo", "PhoneType", "PrimaryFlag", "PhoneNumber"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Emergency Contact Street Address":
-        correct_order = ["METADATA", "ContactAddress", "SourceSystemID", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
+        correct_order = ["METADATA", "ContactAddress", "SourceSystemId", "SourceSystemOwner", "EffectiveStartDate", "EffectiveEndDate", "AddressType", "PrimaryFlag", "AddressLine1", "AddressLine2", "AddressLine3", "AddressLine4",  "Country", "PostalCode", "Region1", "Region2", "Region3", "TownOrCity"]
         object.data = object.data[correct_order]
     elif object.object_choice == "Emergency Contact Email Address":
-        correct_order = ["METADATA", "ContactEmail", "SourceSystemID", "SourceSystemOwner", "DateFrom", "DateTo", "EmailType", "PrimaryFlag", "EmailAddress"]
+        correct_order = ["METADATA", "ContactEmail", "SourceSystemId", "SourceSystemOwner", "DateFrom", "DateTo", "EmailType", "PrimaryFlag", "EmailAddress"]
         object.data = object.data[correct_order]
