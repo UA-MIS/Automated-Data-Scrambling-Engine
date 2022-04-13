@@ -50,36 +50,62 @@ def generate_email_address(object, self): #Function that creates email addresses
     self.loading_label.destroy()
 
 def generate_name(object, self): #Function that generates names based on gender, includes loading bar
-    self.loading_label = Label(self.top_wrapper, text="Generating Names...")
-    self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        if object.data.at[i, "Gender"] == "M":
-            first = random.choice(names.male_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last
-        elif object.data.at[i, "Gender"] == "F":
-            first = random.choice(names.female_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last
-        else:
-            x = random.choice([1, 2])
-            if x == 1:
+    if len(object.data.index) > 100:
+        self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+        self.loading_label.pack()
+        self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+        self.progress.pack()
+        step = round(len(object.data.index)/100)
+        for i in object.data.index:
+            if object.data.at[i, "Gender"] == "M":
                 first = random.choice(names.male_first_names)
-            else:
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last
+            elif object.data.at[i, "Gender"] == "F":
                 first = random.choice(names.female_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_firstname_column] = first
-            object.data.at[i, object.target_lastname_column] = last    
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
-    self.loading_label.destroy()
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last
+            else:
+                x = random.choice([1, 2])
+                if x == 1:
+                    first = random.choice(names.male_first_names)
+                else:
+                    first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last    
+            if i % step == 0:
+                self.progress["value"] += 1
+                self.progress.update()
+        self.progress.destroy()
+        self.loading_label.destroy()
+    else:
+        self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+        self.loading_label.pack()
+        self.loading_label.update()
+        for i in object.data.index:
+            if object.data.at[i, "Gender"] == "M":
+                first = random.choice(names.male_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last
+            elif object.data.at[i, "Gender"] == "F":
+                first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last
+            else:
+                x = random.choice([1, 2])
+                if x == 1:
+                    first = random.choice(names.male_first_names)
+                else:
+                    first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_firstname_column] = first
+                object.data.at[i, object.target_lastname_column] = last    
+        self.loading_label.destroy()
 
 def generate_username(object, self): #Function that creates usernames with users username choice
     self.loading_label = Label(self.top_wrapper, text="Creating Usernames...", font=self.small_font)
@@ -101,36 +127,61 @@ def generate_salary(object, self): #Function that generates salaries based on sa
     self.loading_label.destroy()
 
 def generate_contact_name(object, self): #Function that generates names based on gender, includes loading bar
-    self.loading_label = Label(self.top_wrapper, text="Generating Names...")
-    self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        if object.data.at[i, "Gender"] == "M":
-            first = random.choice(names.male_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last
-        elif object.data.at[i, "Gender"] == "F":
-            first = random.choice(names.female_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last
-        else:
-            x = random.choice([1, 2])
-            if x == 1:
+    if len(object.data.index) > 100:
+        self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+        self.loading_label.pack()
+        self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+        self.progress.pack()
+        step = round(len(object.data.index)/100)
+        for i in object.data.index:
+            if object.data.at[i, "Gender"] == "M":
                 first = random.choice(names.male_first_names)
-            else:
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last
+            elif object.data.at[i, "Gender"] == "F":
                 first = random.choice(names.female_first_names)
-            last = random.choice(names.last_names)
-            object.data.at[i, object.target_contact_firstname_column] = first
-            object.data.at[i, object.target_contact_lastname_column] = last    
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
-    self.loading_label.destroy()
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last
+            else:
+                x = random.choice([1, 2])
+                if x == 1:
+                    first = random.choice(names.male_first_names)
+                else:
+                    first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last    
+            if i % step == 0:
+                self.progress["value"] += 1
+                self.progress.update()
+        self.progress.destroy()
+        self.loading_label.destroy()
+    else:
+        self.loading_label = Label(self.top_wrapper, text="Generating Names...")
+        self.loading_label.pack()
+        for i in object.data.index:
+            if object.data.at[i, "Gender"] == "M":
+                first = random.choice(names.male_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last
+            elif object.data.at[i, "Gender"] == "F":
+                first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last
+            else:
+                x = random.choice([1, 2])
+                if x == 1:
+                    first = random.choice(names.male_first_names)
+                else:
+                    first = random.choice(names.female_first_names)
+                last = random.choice(names.last_names)
+                object.data.at[i, object.target_contact_firstname_column] = first
+                object.data.at[i, object.target_contact_lastname_column] = last    
+        self.loading_label.destroy()
 
 def generate_contact_phone_number(object, self): #Function that generates phone numbers for emergency contact
     self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...", font=self.small_font)
@@ -140,34 +191,58 @@ def generate_contact_phone_number(object, self): #Function that generates phone 
     self.loading_label.destroy()
 
 def generate_contact_street_address(object, self): #Function that generates street addresses for emergency contact using users street choice and frequency choice
-    self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
-    self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        object.data.at[i, object.target_contact_column_1] = return_streetaddress(object.street, i)
-        if object.frequency == "1/10":
-            frequency = 10
-            if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "1/20":
-            frequency = 20
-            if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "1/50":
-            frequency = 50
-            if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
-        else:
-            frequency = 100
-            if i % frequency == 0:
-                object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
-    self.loading_label.destroy()
+    if len(object.data.index) > 100:
+        self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
+        self.loading_label.pack()
+        self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+        self.progress.pack()
+        step = round(len(object.data.index)/100)
+        for i in object.data.index:
+            object.data.at[i, object.target_contact_column_1] = return_streetaddress(object.street, i)
+            if object.frequency == "1/10":
+                frequency = 10
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/20":
+                frequency = 20
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/50":
+                frequency = 50
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            else:
+                frequency = 100
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            if i % step == 0:
+                self.progress["value"] += 1
+                self.progress.update()
+        self.progress.destroy()
+        self.loading_label.destroy()
+    else:
+        self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
+        self.loading_label.pack()
+        self.loading_label.update()
+        for i in object.data.index:
+            object.data.at[i, object.target_contact_column_1] = return_streetaddress(object.street, i)
+            if object.frequency == "1/10":
+                frequency = 10
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/20":
+                frequency = 20
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/50":
+                frequency = 50
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+            else:
+                frequency = 100
+                if i % frequency == 0:
+                    object.data.at[i, object.target_contact_column_2] = return_streetaddress_line2(i)
+        self.loading_label.destroy()
 
 def return_streetaddress(street_choice, i): #Function that returns street addresses based on users choice
     x = str(i + 110)
@@ -186,34 +261,58 @@ def return_hourly_salary(): #Function that returns an hourly salary
     return x
    
 def generate_street_address(object, self):  #Function that generates street addresses using users street choice and frequency choice
-    self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
-    self.loading_label.pack()
-    self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
-    self.progress.pack()
-    step = round(len(object.data.index)/100)
-    for i in object.data.index:
-        object.data.at[i, object.target_column_1] = return_streetaddress(object.street, i)
-        if object.frequency == "1/10":
-            frequency = 10
-            if i % frequency == 0:
-                object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "1/20":
-            frequency = 20
-            if i % frequency == 0:
-                object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        elif object.frequency == "1/50":
-            frequency = 50
-            if i % frequency == 0:
-                object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        else:
-            frequency = 100
-            if i % frequency == 0:
-                object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
-        if i % step == 0:
-            self.progress["value"] += 1
-            self.progress.update()
-    self.progress.destroy()
-    self.loading_label.destroy()
+    if len(object.data.index) > 100:
+        self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
+        self.loading_label.pack()
+        self.progress = Progressbar(self.top_wrapper, orient = HORIZONTAL, length = 100, maximum = 100, style = 'red.Horizontal.TProgressbar', mode = 'determinate')
+        self.progress.pack()
+        step = round(len(object.data.index)/100)
+        for i in object.data.index:
+            object.data.at[i, object.target_column_1] = return_streetaddress(object.street, i)
+            if object.frequency == "1/10":
+                frequency = 10
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/20":
+                frequency = 20
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/50":
+                frequency = 50
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            else:
+                frequency = 100
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            if i % step == 0:
+                self.progress["value"] += 1
+                self.progress.update()
+        self.progress.destroy()
+        self.loading_label.destroy()
+    else:
+        self.loading_label = Label(self.top_wrapper, text="Generating Street Addresses...")
+        self.loading_label.pack()
+        self.loading_label.update()
+        for i in object.data.index:
+            object.data.at[i, object.target_column_1] = return_streetaddress(object.street, i)
+            if object.frequency == "1/10":
+                frequency = 10
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/20":
+                frequency = 20
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            elif object.frequency == "1/50":
+                frequency = 50
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+            else:
+                frequency = 100
+                if i % frequency == 0:
+                    object.data.at[i, object.target_column_2] = return_streetaddress_line2(i)
+        self.loading_label.destroy()
 
 def generate_phone_number(object, self): #Function that generates phone numbers with different formats
     self.loading_label = Label(self.top_wrapper, text="Generating Phone Numbers...", font=self.small_font)
