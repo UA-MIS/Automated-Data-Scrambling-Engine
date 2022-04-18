@@ -48,7 +48,7 @@ def add_file(self): #Function that allows user to upload files with different de
                 self.not_acceptable_label.pack(padx=2.5, pady=2.5)
                 self.choose_correct_file_btn = Button(self.bottom_wrapper, text="Choose a New File", fg="white", bg="#990000", command=lambda: add_file(self))
                 self.choose_correct_file_btn.pack(expand="true")
-        data = pd.read_csv(file_name, header=0, sep=self.delim_choice.get())
+        data = pd.read_csv(file_name, header=0, sep=self.delim_choice.get(), encoding='latin-1')
         self.loading_label.destroy()
         self.file_name_label["text"] = file_name
         prior_error = False
